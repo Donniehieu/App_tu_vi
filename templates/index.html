@@ -5,68 +5,73 @@
     <title>Xem Tử Vi Bắc Phái</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-    .laso-wrapper {
-        width: 75vh;
-        height: 100vh;
-        max-width: 90vw;
-        max-height: 90vw;
-        aspect-ratio: 3/4;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-    }
-    .laso-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        grid-template-rows: repeat(4, 1fr);
-        width: 100%;
-        height: 100%;
-        background: #fffbe7;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px #0001;
-        overflow: hidden;
-        gap: 0;
-    }
-    .laso-cell {
-        border: 1px solid #8d8d8d;
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-start;
-        padding: 6px;
-        font-size: 0.97rem;
-        min-width: 0;
-        min-height: 0;
-        background: #fffded;
-        position: relative;
-        box-sizing: border-box;
-        transition: background 0.2s, border 0.2s;
-    }
-    .laso-cell.center {
-        grid-column: 2 / span 2;
-        grid-row: 2 / span 2;
-        display: block;
-        background: #f6fafd;
-        font-weight: bold;
-        font-size: 1rem;
-        border: 1px solid #8d8d8d;
-        z-index: 1;
-        padding: 12px 4px;
-        text-align: center;
-    }
-    .highlight-menh {
-        background: #ffe566 !important;
-        border: 2px solid #cc9900 !important;
-    }
-    .highlight-than {
-    background: #c3e8ff !important;
-    border: 2px solid #0070c0 !important;
-}
+        .laso-wrapper {
+            width: 75vh;
+            height: 100vh;
+            max-width: 90vw;
+            max-height: 90vw;
+            aspect-ratio: 3/4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .laso-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            width: 100%;
+            height: 100%;
+            background: #fffbe7;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px #0001;
+            overflow: hidden;
+            gap: 0;
+        }
+
+        .laso-cell {
+            border: 1px solid #8d8d8d;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 6px;
+            font-size: 0.97rem;
+            min-width: 0;
+            min-height: 0;
+            background: #fffded;
+            position: relative;
+            box-sizing: border-box;
+            transition: background 0.2s, border 0.2s;
+        }
+
+            .laso-cell.center {
+                grid-column: 2 / span 2;
+                grid-row: 2 / span 2;
+                display: block;
+                background: #f6fafd;
+                font-weight: bold;
+                font-size: 1rem;
+                border: 1px solid #8d8d8d;
+                z-index: 1;
+                padding: 12px 4px;
+                text-align: center;
+            }
+
+        .highlight-menh {
+            background: #ffe566 !important;
+            border: 2px solid #cc9900 !important;
+        }
+
+        .highlight-than {
+            background: #c3e8ff !important;
+            border: 2px solid #0070c0 !important;
+        }
     </style>
-  
+
     <script src="amlich-convert.js"></script>
-     
-   
+
+
 </head>
 <body class="bg-light">
     <div class="container py-5">
@@ -163,10 +168,13 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         let ThienCanNamSinh = "G.";
-        // Tên ác cung từ cung Mệnh thuận chiều kim đồng hồ 
+        let IDCungMenh = 0;
+        let cucSo = 0;
+       
+        // Tên ác cung từ cung Mệnh thuận chiều kim đồng hồ
         const TEN_CUNG_FULL = [
             "Mệnh", "Phụ Mẫu", "Phúc Đức", "Điền Trạch",
             "Quan Lộc", "Nô Bộc", "Thiên Di", "Tật Ách",
@@ -231,6 +239,16 @@
             return arrCuc[s];
         }
 
+        function tinhcucSo(tenCuc) {
+
+            if (tenCuc == "Thủy nhị cục") return 2;
+            if (tenCuc == "Mộc tam cục") return 3;
+            if (tenCuc == "Kim tứ cục") return 4;
+            if (tenCuc == "Thổ ngũ cục") return 5;
+            if (tenCuc == "Hỏa lục cục") return 6;
+
+            
+        }
         // Mapping chuẩn 12 cung ngoài Bắc phái (theo cell HTML và chi)
         const CUNG_CELLS = [
             { cell: 13, chi: "Dần" },
@@ -255,6 +273,7 @@
             let thangIdx = (thang_am - 1) % 12; // Tháng Giêng index 0 (Dần)
             let gioIdx = CHI12.indexOf(gio_chi); // Tỵ = 5
             let menhIdx = (thangIdx - gioIdx + 12) % 12;
+            IDCungMenh = menhIdx;
             let obj = CUNG_CELLS[menhIdx];
             hienThiTenCungLaso(menhIdx); // Hiển thị tên cung trên bàn lá số
             return obj; // {cell: xx, chi: "..."}
@@ -293,13 +312,13 @@
                 if (cell) {
                     // Xóa nội dung cũ, thêm tên cung ở top center
                     cell.innerHTML = `<div style="font-weight:bold;text-align:center;width:100%;position:absolute;top:2px;left:0;right:0;font-size:1.05em;color:#a66300;">${tenCung}</div>
-                <div style="top:2px; font-size:12px;text-align:left;width:100%">${getCanThang12Cung(ThienCanNamSinh)[(menhIdx + i) % 12]}  ${cc.chi}</div>`;
+                        <div style="top:2px; font-size:12px;text-align:left;width:100%">${getCanThang12Cung(ThienCanNamSinh)[(menhIdx + i) % 12]}  ${cc.chi}</div>`;
                 }
             }
         }
-       
-        
-     
+
+
+
         const ngayInput = document.getElementById('ngay');
         const thangInput = document.getElementById('thang');
         const namInput = document.getElementById('nam');
@@ -356,8 +375,8 @@
             let cell = document.querySelector('.cell' + cellNum);
             if (cell) cell.classList.add('highlight-than');
         }
-       
-        // hàm check khi input ngày tháng năm 
+
+        // hàm check khi input ngày tháng năm
         ngayInput.addEventListener('input', validateDateInput);
         thangInput.addEventListener('input', validateDateInput);
         namInput.addEventListener('input', validateDateInput);
@@ -371,7 +390,7 @@
             // Chỉ enable nếu hợp lệ ngày tháng năm (được validate ở trên)
             validateDateInput();
         });
-     
+
         const START_CAN_THANG_TU_DAN = {
             "G.": 2, "K.": 2,   // Bính Dần
             "Ấ.": 4, "C.": 4,   // Mậu Dần
@@ -386,7 +405,7 @@
             for (let i = 0; i < 12; ++i) {
                 canArr.push(CAN[(startCan + i) % 10]);
             }
-          
+
             return canArr;
         }
 
@@ -403,13 +422,37 @@
                 html += `<tr${i === 0 ? ' style="font-weight:bold;background:#ffe"' : ''}><td>${i + 1}</td><td>${tenCung}</td><td>${can} ${cc.chi}</td></tr>`;
             }
             html += "</tbody></table>";
-            
+
             return html;
 
-            
-        }
 
-        // hàm thực hiện khi bấm nút 
+        }
+        function hienthidaivan() {
+          
+        }
+                /**
+        * Tính đại vận cho 12 cung lá số tử vi Bắc phái.
+        * @param {number} menhIdx - Chỉ số cung Mệnh (0-11, bắt đầu từ Dần thuận chiều kim đồng hồ)
+        * @param {number} cucSo - Số của Cục (2~6)
+        * @param {string} amduong - Chuỗi: "Dương Nam", "Dương Nữ", "Âm Nam", "Âm Nữ"
+        * @returns {Array<number>} - Mảng 12 số đại vận ứng với 12 cung, index 0 là cung Mệnh, tiếp đến các cung xung quanh.
+        */
+                function tinhdaivan(menhIdx, cucSo, amduong) {
+                    // Số đại vận cho 12 cung, khởi tạo
+                    let daiVanArr = Array(12).fill(0);
+                    // Xác định chiều: thuận = +1, ngược = -1
+                    let isThuan = (amduong === "Dương Nam" || amduong === "Âm Nữ");
+                    // Đặt số cục tại cung Mệnh
+                    let idx = menhIdx;
+                    for (let i = 0; i < 12; ++i) {
+                        daiVanArr[idx] = cucSo + i * 10;
+                        // Tính chỉ số cung tiếp theo
+                        idx = (idx + (isThuan ? 1 : -1) + 12) % 12;
+                    }
+                    return daiVanArr;
+                }
+
+        // hàm thực hiện khi bấm nút
         document.getElementById('form_tuvi').addEventListener('submit', function (e) {
             e.preventDefault();
             const hoten = document.getElementById('hoten').value.trim();
@@ -445,7 +488,7 @@
             const menhObj = getMenhCell(am.thang, gio.split(' ')[0]);
             const chiMenh = menhObj.chi;
             const cellMenh = menhObj.cell;
-            
+
 
             // Xác định cung thân
             const thanObj = getThanCell(am.thang, gio.split(' ')[0]);
@@ -455,32 +498,54 @@
 
             // Tính Cục
             const cuc = traCuc(canNam, chiMenh);
-
-            document.getElementById('cungGop').innerHTML = `
-                <div><b>Người xem hạn:</b> ${hoten}</div>
-                <div><b>Năm xem hạn:</b> ${namxemhan} (${canchiNamXemHan})</div>
-                <hr/>
-                <div><b>Ngày sinh âm lịch:</b> ${am.ngay}/${am.thang}${am.nhuan ? ' (Nhuận)' : ''}/${am.nam}</div>
-                <div><b>Can chi năm:</b> ${canchi.nam}</div>
-                <div><b>Can chi tháng:</b> ${canchi.thang}</div>
-                <div><b>Can chi ngày:</b> ${canchi.ngay}</div>
-                <div><b>Can chi giờ:</b> ${canchi.gio}</div>
-                <hr/>
-                <div><b>Giới tính:</b> ${gioitinh}</div>
-                <div><b>Số tuổi âm lịch:</b> ${tuoiAm}</div>
-                <div><b>Âm dương:</b> ${amduong}</div>
-                <div><b>Mệnh:</b> ${menh}</div>
-                <div><b>Cục:</b> ${cuc}</div>
-                <div><b>Cung Mệnh:</b> ${chiMenh} </div>
-                <div><b>Cung Thân:</b> ${chiThan}</div>
-            `;
+            // An đại vận
+            cucSo = tinhcucSo(cuc);
             
-         
+            const lsDaiVan = tinhdaivan(IDCungMenh, cucSo, amduong);
+            window.alert(lsDaiVan);
+            // Xóa thông tin đại vận cũ nếu có
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                let old = cell.querySelector('.daivan-label');
+                if (old) old.remove();
+            });
+            // Hiển thị đại vận trên 12 cung
+            for (let i = 0; i < 12; ++i) {
+                let cellNum = CUNG_CELLS[i].cell;
+                let cell = document.querySelector('.cell' + cellNum);
+                if (cell) {
+                    cell.insertAdjacentHTML('afterbegin',
+                        `<div class="daivan-label" style="position:absolute; top:2px; right:4px; color:#0070c0; font-size:0.98em; font-weight:bold; z-index:2;">
+                ${lsDaiVan[i]}
+            </div>`);
+                }
+            }
+            document.getElementById('cungGop').innerHTML = `
+                        <div><b>Người xem hạn:</b> ${hoten}</div>
+                        <div><b>Năm xem hạn:</b> ${namxemhan} (${canchiNamXemHan})</div>
+                        <hr/>
+                        <div><b>Ngày sinh âm lịch:</b> ${am.ngay}/${am.thang}${am.nhuan ? ' (Nhuận)' : ''}/${am.nam}</div>
+                        <div><b>Can chi năm:</b> ${canchi.nam}</div>
+                        <div><b>Can chi tháng:</b> ${canchi.thang}</div>
+                        <div><b>Can chi ngày:</b> ${canchi.ngay}</div>
+                        <div><b>Can chi giờ:</b> ${canchi.gio}</div>
+                        <hr/>
+                        <div><b>Giới tính:</b> ${gioitinh}</div>
+                        <div><b>Số tuổi âm lịch:</b> ${tuoiAm}</div>
+                        <div><b>Âm dương:</b> ${amduong}</div>
+                        <div><b>Mệnh:</b> ${menh}</div>
+                        <div><b>Cục:</b> ${cuc}</div>
+                        <div><b>Cung Mệnh:</b> ${chiMenh} </div>
+                        <div><b>Cung Thân:</b> ${chiThan}</div>
+                    `;
+
+            
             highlightMenhCell(cellMenh);
             highlightThanCell(cellThan);
+          
+
             document.getElementById('form-row').classList.add('d-none');
             document.getElementById('laso-row').classList.remove('d-none');
-           
+
         });
     </script>
 
