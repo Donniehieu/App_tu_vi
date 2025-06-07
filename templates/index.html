@@ -427,9 +427,7 @@
 
 
         }
-        function hienthidaivan() {
-          
-        }
+       
                 /**
         * Tính đại vận cho 12 cung lá số tử vi Bắc phái.
         * @param {number} menhIdx - Chỉ số cung Mệnh (0-11, bắt đầu từ Dần thuận chiều kim đồng hồ)
@@ -452,6 +450,49 @@
                     return daiVanArr;
                 }
 
+
+                    /**
+            * Tính mảng 12 năm tiểu vận ứng với 12 cung lá số tử vi Bắc phái.
+            * @param {string} chiNamSinh - Chi năm sinh (ví dụ: "Tý", "Sửu", "Dần"...)
+            * @param {number} tuoiAm - Tuổi âm lịch người xem hạn (năm xem hạn - năm âm lịch sinh + 1)
+            * @param {string} gioitinh - "Nam"/"Nữ"
+            * @returns {Array<string>} - Mảng 12 chi ứng với tiểu vận cho 12 cung, index 0 là cung khởi, thuận/ nghịch theo giới tính.
+            */
+                    function tinhTieuvan(chiNamSinh, chiNam, gioitinh) {
+                        // Xác định cung khởi tiểu vận dựa vào chi năm sinh
+                        // Dần Ngọ Tuất -> Thìn, Thân Tý Thìn -> Tuất, Tỵ Dậu Sửu -> Mùi, Hợi Mão Mùi -> Sửu
+                        const CHI12 = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+                        const tieuvanKhoi = (() => {
+                            if (["Dần", "Ngọ", "Tuất"].includes(chiNamSinh)) return "Thìn";
+                            if (["Thân", "Tý", "Thìn"].includes(chiNamSinh)) return "Tuất";
+                            if (["Tỵ", "Dậu", "Sửu"].includes(chiNamSinh)) return "Mùi";
+                            if (["Hợi", "Mão", "Mùi"].includes(chiNamSinh)) return "Sửu";
+                            // fallback: default về Tý nếu không xác định được
+                            return "Tý";
+                        })();
+                        // Tìm vị trí cung khởi trong CUNG_CELLS
+                        const khoiIdx = CUNG_CELLS.findIndex(c => c.chi === tieuvanKhoi);
+                        if (khoiIdx === -1) return Array(12).fill("");
+                        // Xác định chiều: Nam thuận, Nữ nghịch (thứ tự điền cung)
+                        const step = gioitinh === "Nam" ? 1 : -1;
+
+                        // Tính chi của năm tiểu hạn đầu tiên (năm tuổi âm)
+                        let chiIdx = CHI12.indexOf(chiNamSinh);
+                        let tieuvanArr = Array(12).fill("");
+                        for (let i = 0; i < 12; ++i) {
+                            // Vị trí cung hiện tại
+                            let cungIdx = (khoiIdx + i * step + 12 * 5) % 12;
+                            // Chi năm tiểu hạn tương ứng
+                            let chi = CHI12[(chiIdx + i) % 12];
+                            
+                            if (chi== chiNam) {
+                                tieuvanArr[cungIdx] = chi + " (T.H)";
+                            } else {
+                                tieuvanArr[cungIdx] = chi;
+                            }
+                        }
+                        return tieuvanArr;
+                    }
         // hàm thực hiện khi bấm nút
         document.getElementById('form_tuvi').addEventListener('submit', function (e) {
             e.preventDefault();
@@ -477,6 +518,7 @@
             const CHI = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
             const canchiNamXemHan = CAN[(namxemhan - 4) % 10] + " " + CHI[(namxemhan - 4) % 12];
             const tuoiAm = namxemhan - am.nam + 1;
+            const chiNamXemhan = CHI[(namxemhan - 4) % 12];
 
             // --- TÍCH HỢP ÂM DƯƠNG, MỆNH, CỤC ---
             const canNam = canchi.nam.split(' ')[0];
@@ -502,7 +544,7 @@
             cucSo = tinhcucSo(cuc);
             
             const lsDaiVan = tinhdaivan(IDCungMenh, cucSo, amduong);
-            window.alert(lsDaiVan);
+          
             // Xóa thông tin đại vận cũ nếu có
             document.querySelectorAll('.laso-cell').forEach(cell => {
                 let old = cell.querySelector('.daivan-label');
@@ -516,6 +558,22 @@
                     cell.insertAdjacentHTML('afterbegin',
                         `<div class="daivan-label" style="position:absolute; top:2px; right:4px; color:#0070c0; font-size:0.98em; font-weight:bold; z-index:2;">
                 ${lsDaiVan[i]}
+            </div>`);
+                }
+            }
+
+            window.alert(chiNamXemhan);
+            // Ví dụ sử dụng sau khi xác định chiNam, tuoiAm, gioitinh
+            const arrTieuvan = tinhTieuvan(chiNam, chiNamXemhan, gioitinh);
+
+            // khi render: với mỗi cell ứng với CUNG_CELLS[i], chèn arrTieuvan[i] ở góc trái dưới cùng
+            for (let i = 0; i < 12; ++i) {
+                let cellNum = CUNG_CELLS[i].cell;
+                let cell = document.querySelector('.cell' + cellNum);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend',
+                        `<div class="tieuvan-label" style="position:absolute; left:2px; bottom:2px; color:#e67e22; font-size:0.98em; font-weight:bold; z-index:2;">
+                ${arrTieuvan[i]}
             </div>`);
                 }
             }
