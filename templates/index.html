@@ -388,6 +388,8 @@
 
 
 
+
+
         const ngayInput = document.getElementById('ngay');
         const thangInput = document.getElementById('thang');
         const namInput = document.getElementById('nam');
@@ -595,6 +597,55 @@
                     }
                 }
             }
+            // hàm xác định vị trí Thiên Phủ đối xứng Dần Thân với Tử Vi
+
+                   const tuViThienPhuPairs = [
+            ["Dần", "Dần"],
+            ["Mão", "Sửu"],
+            ["Thìn", "Tý"],
+            ["Tỵ", "Hợi"],
+            ["Ngọ", "Tuất"],
+            ["Mùi", "Dậu"],
+            ["Thân", "Thân"],
+            ["Dậu", "Mùi"],
+            ["Tuất", "Ngọ"],
+            ["Hợi", "Tỵ"],
+            ["Tý", "Thìn"],
+            ["Sửu", "Mão"],
+        ];
+
+        // cho idxTuVi là vị trí cung 1-12 (Dần=1,...,Sửu=12), tìm ra vị trí thiên phủ (1-12)
+        function viTriThienPhu(idxTuVi) {
+            // CUNG_CELLS thứ tự Dần(1), Mão(2), ..., Sửu(12)
+            const chiTuVi = CUNG_CELLS[idxTuVi - 1].chi;
+            // Tìm cặp ứng chi
+            for (const [chiTV, chiTP] of tuViThienPhuPairs) {
+                if (chiTV === chiTuVi) {
+                    // Tìm idx Thiên Phủ
+                    return CUNG_CELLS.findIndex(c => c.chi === chiTP) + 1; // trả về 1-12
+                }
+            }
+            // fallback
+            return idxTuVi;
+        }
+
+            // hàm An các sao theo sao Thiên Phủ
+            function cacSaoTuThienPhu(idxThienPhu) {
+            function tienCung(idx, soCung) {
+                // idx: vị trí hiện tại (1-12)
+                return ((idx + soCung - 1) % 12) + 1;
+            }
+            return {
+                thienPhu: idxThienPhu,
+                thaiAm: tienCung(idxThienPhu, 1),
+                thamLang: tienCung(idxThienPhu, 2),
+                cuMon: tienCung(idxThienPhu, 3),
+                thienTuong: tienCung(idxThienPhu, 4),
+                thienLuong: tienCung(idxThienPhu, 5),
+                thatSat: tienCung(idxThienPhu, 6),
+                phaQuan: tienCung(idxThienPhu, 10),
+            };
+        }
 
         // hàm thực hiện khi bấm nút
         document.getElementById('form_tuvi').addEventListener('submit', function (e) {
@@ -653,7 +704,46 @@
 
             displayChinhTinhOnLaSo(idxTuVi);
 
-       
+            // 1. Xác định vị trí Thiên Phủ
+            const idxThienPhu = viTriThienPhu(idxTuVi);
+
+            // 2. An các sao từ Thiên Phủ
+            const saoTuThienPhu = cacSaoTuThienPhu(idxThienPhu);
+
+            // 3. Gộp dữ liệu các sao lại với từng cung
+            const tenSaoTP = {
+                thienPhu: "Thiên Phủ",
+                thaiAm: "Thái Âm",
+                thamLang: "Tham Lang",
+                cuMon: "Cự Môn",
+                thienTuong: "Thiên Tướng",
+                thienLuong: "Thiên Lương",
+                thatSat: "Thất Sát",
+                phaQuan: "Phá Quân"
+            };
+            const saoTrenCungTP = {};
+            for (let i = 1; i <= 12; ++i) saoTrenCungTP[i] = [];
+            for (const [k, v] of Object.entries(saoTuThienPhu)) {
+                saoTrenCungTP[v].push(tenSaoTP[k]);
+            }
+
+            // Hiển thị lên từng cell
+            for (let i = 0; i < 12; ++i) {
+                const cellNum = CUNG_CELLS[i].cell;
+                const cell = document.querySelector('.cell' + cellNum);
+                if (cell) {
+                    // Xoá sao cũ nếu có
+                    let old = cell.querySelector('.phu-tinh-label');
+                    if (old) old.remove();
+                    // Thêm tên các sao phụ tinh (nếu có)
+                    if (saoTrenCungTP[i+1].length > 0) {
+                        cell.insertAdjacentHTML('beforeend',
+                            `<div class="phu-tinh-label" style="position:absolute;left:0;right:0;top:45px;text-align:center;font-weight:bold;color:#1e88e5;font-size:0.95em;z-index:2;">
+                                ${saoTrenCungTP[i+1].join(', ')}
+                            </div>`);
+                    }
+                }
+            }
           
             
             const lsDaiVan = tinhdaivan(IDCungMenh, cucSo, amduong);
