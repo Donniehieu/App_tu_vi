@@ -265,6 +265,15 @@
             { cell: 14, chi: "Sửu" }
         ];
 
+                const TEN_SAO_CHINH_THEO_TUVI = {
+            tuVi: "Tử Vi",
+            thienCo: "Thiên Cơ",
+            thaiDuong: "Thái Dương",
+            vuKhuc: "Vũ Khúc",
+            thienDong: "Thiên Đồng",
+            liemTrinh: "Liêm Trinh"
+        };
+
         // Chi 12 con giáp thứ tự
         const CHI12 = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
 
@@ -303,19 +312,79 @@
             return 31; // fallback
         }
 
-        // Hàm điền tên cung vào bàn lá số theo vị trí
-        function hienThiTenCungLaso(menhIdx) {
-            for (let i = 0; i < 12; ++i) {
-                let cc = CUNG_CELLS[(menhIdx + i) % 12];
-                let tenCung = TEN_CUNG_FULL[i];
-                let cell = document.querySelector('.cell' + cc.cell);
-                if (cell) {
-                    // Xóa nội dung cũ, thêm tên cung ở top center
-                    cell.innerHTML = `<div style="font-weight:bold;text-align:center;width:100%;position:absolute;top:2px;left:0;right:0;font-size:1.05em;color:#a66300;">${tenCung}</div>
-                        <div style="top:2px; font-size:12px;text-align:left;width:100%">${getCanThang12Cung(ThienCanNamSinh)[(menhIdx + i) % 12]}  ${cc.chi}</div>`;
-                }
+        // hàm tính lùi cung
+            function luiCung(idx, soCung) {
+        // idx: vị trí hiện tại (1-12), soCung: số cung lùi
+        return ((idx - soCung - 1 + 12) % 12) + 1;
+}
+
+        // Tính vị trí các sao chính tinh dựa vào vị trí Tử Vi
+        function getChinhTinhFromTuVi(idxTuVi) {
+            // idxTuVi: 1-12
+            // lùi cung (ngược kim đồng hồ): ((idxTuVi - soCung - 1 + 12) % 12) + 1
+            function luiCung(idx, soCung) {
+                return ((idx - soCung - 1 + 12) % 12) + 1;
+            }
+            return {
+                tuVi: idxTuVi,
+                thienCo: luiCung(idxTuVi, 1),
+                thaiDuong: luiCung(idxTuVi, 3),
+                vuKhuc: luiCung(idxTuVi, 4),
+                thienDong: luiCung(idxTuVi, 5),
+                liemTrinh: luiCung(idxTuVi, 8),
+            };
+        }
+
+       function displayChinhTinhOnLaSo(idxTuVi) {
+    // Lấy vị trí từng sao
+    const pos = getChinhTinhFromTuVi(idxTuVi); // {tuVi:..., thienCo:..., ...}
+    // Tạo map cung - danh sách sao
+    const saoTrenCung = {};
+    for (let i = 1; i <= 12; ++i) saoTrenCung[i] = [];
+    for (const [k, v] of Object.entries(pos)) {
+        saoTrenCung[v].push(TEN_SAO_CHINH_THEO_TUVI[k]);
+    }
+    // Hiển thị lên từng cell trong bàn lá số (theo CUNG_CELLS)
+    for (let i = 0; i < 12; ++i) {
+        const cellNum = CUNG_CELLS[i].cell;
+        const cell = document.querySelector('.cell' + cellNum);
+        if (cell) {
+            // Xoá sao cũ nếu có
+            let old = cell.querySelector('.chinh-tinh-label');
+            if (old) old.remove();
+            // Thêm tên các sao chính tinh (nếu có)
+            if (saoTrenCung[i+1].length > 0) {
+                cell.insertAdjacentHTML('beforeend',
+                    `<div class="chinh-tinh-label" style="position:absolute;left:0;right:0;bottom:28px;text-align:center;font-weight:bold;color:#be0e8c;font-size:1em;z-index:2;">
+                        ${saoTrenCung[i+1].join(', ')}
+                    </div>`);
             }
         }
+    }
+}
+
+        // Hàm điền tên cung vào bàn lá số theo vị trí
+       function hienThiTenCungLaso(menhIdx, highlightTuViIdx = null) {
+        for (let i = 0; i < 12; ++i) {
+            let cc = CUNG_CELLS[(menhIdx + i) % 12];
+            let tenCung = TEN_CUNG_FULL[i];
+            let cell = document.querySelector('.cell' + cc.cell);
+            if (cell) {
+                // Xóa nội dung cũ, thêm tên cung ở top center
+                cell.innerHTML = `
+                    <div style="font-weight:bold;text-align:center;width:100%;position:absolute;top:2px;left:0;right:0;font-size:1.05em;color:#a66300;">
+                        ${tenCung}
+                    </div>
+                    <div style="top:2px; font-size:12px;text-align:left;width:100%">
+                        ${getCanThang12Cung(ThienCanNamSinh)[(menhIdx + i) % 12]}  ${cc.chi}
+                    </div>
+                    <div style="font-weight:bold;text-align:center;width:100%;position:absolute;left:0;right:0;top:20px;font-size:1.04em;color:#7b1fa2;">
+                        ${(highlightTuViIdx !== null && ((menhIdx + i) % 12 + 1) === highlightTuViIdx) ? 'Tử Vi' : ''}
+                    </div>
+                `;
+            }
+        }
+    }
 
 
 
@@ -493,6 +562,40 @@
                         }
                         return tieuvanArr;
                     }
+
+
+                                /**
+             * An sao Tử Vi - đánh số cung Dần = 1, Mão = 2, ..., Sửu = 12
+             * @param {number} ngay_am - Ngày sinh âm lịch (1-30)
+             * @param {number} cucSo - Số của cục (2,3,4,5,6)
+             * @returns {number} - Index cung (1-12, Dần = 1, ..., Sửu = 12)
+             */
+            function anSaoTuVi(ngay_am, cucSo) {
+                let quotient = Math.floor(ngay_am / cucSo);
+                let remainder = ngay_am % cucSo;
+                let startIdx = 1; // Dần = 1
+
+                if (remainder === 0) {
+                    // Chia hết: từ Dần tiến thuận số bước = thương, Dần là 1
+                    let viTri = ((startIdx + quotient - 1) % 12);
+                    return viTri === 0 ? 12 : viTri;
+                } else {
+                    let soMuon = cucSo - remainder;
+                    let ngayMuon = ngay_am + soMuon;
+                    let chiaHetIdx = ((startIdx + Math.floor(ngayMuon / cucSo) - 1) % 12);
+                    chiaHetIdx = chiaHetIdx === 0 ? 12 : chiaHetIdx;
+                    if (soMuon % 2 === 0) {
+                        // Số mượn chẵn: tiến thuận số bước = số mượn
+                        let viTri = ((chiaHetIdx + soMuon - 1) % 12) + 1;
+                        return viTri > 12 ? viTri - 12 : viTri;
+                    } else {
+                        // Số mượn lẻ: lùi nghịch số bước = số mượn
+                        let viTri = ((chiaHetIdx - soMuon - 1 + 12 * 2) % 12) + 1;
+                        return viTri > 12 ? viTri - 12 : viTri;
+                    }
+                }
+            }
+
         // hàm thực hiện khi bấm nút
         document.getElementById('form_tuvi').addEventListener('submit', function (e) {
             e.preventDefault();
@@ -537,11 +640,21 @@
             const chiThan = thanObj.chi;
             const cellThan = thanObj.cell;
             document.getElementById('cungGop').innerHTML += `<div><b>Cung Thân:</b> ${chiThan}</div>`;
+      
 
             // Tính Cục
             const cuc = traCuc(canNam, chiMenh);
             // An đại vận
             cucSo = tinhcucSo(cuc);
+
+            // An Sao tử vi
+
+            const idxTuVi = anSaoTuVi(am.ngay, cucSo);
+
+            displayChinhTinhOnLaSo(idxTuVi);
+
+            // gọi lại hiển thị tên sao
+            hienThiTenCungLaso(IDCungMenh, idxTuVi);
             
             const lsDaiVan = tinhdaivan(IDCungMenh, cucSo, amduong);
           
@@ -562,7 +675,7 @@
                 }
             }
 
-            window.alert(chiNamXemhan);
+        
             // Ví dụ sử dụng sau khi xác định chiNam, tuoiAm, gioitinh
             const arrTieuvan = tinhTieuvan(chiNam, chiNamXemhan, gioitinh);
 
