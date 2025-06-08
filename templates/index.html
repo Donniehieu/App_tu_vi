@@ -355,7 +355,7 @@
             // Thêm tên các sao chính tinh (nếu có)
             if (saoTrenCung[i+1].length > 0) {
                 cell.insertAdjacentHTML('beforeend',
-                    `<div class="chinh-tinh-label" style="position:absolute;left:0;right:0;bottom:28px;text-align:center;font-weight:bold;color:#be0e8c;font-size:1em;z-index:2;">
+                    `<div class="chinh-tinh-label" style="position:absolute;left:0;right:0;top:28px;text-align:center;font-weight:bold;color:#be0e8c;font-size:1em;z-index:2;">
                         ${saoTrenCung[i+1].join(', ')}
                     </div>`);
             }
@@ -653,8 +653,8 @@
 
             displayChinhTinhOnLaSo(idxTuVi);
 
-            // gọi lại hiển thị tên sao
-            hienThiTenCungLaso(IDCungMenh, idxTuVi);
+       
+          
             
             const lsDaiVan = tinhdaivan(IDCungMenh, cucSo, amduong);
           
