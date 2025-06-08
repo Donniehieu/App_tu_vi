@@ -780,6 +780,52 @@
             </div>`);
                 }
             }
+
+            // === AN SAO CỐ ĐỊNH: Thiên La – Địa Võng, Thiên Thương – Thiên Sứ ===
+    const SAO_CODINH = [
+        { ten: "Thiên La", chi: "Thìn", loai: "xau" },
+        { ten: "Địa Võng", chi: "Tuất", loai: "xau" },
+        { ten: "Thiên Thương", cung: "Nô Bộc", loai: "xau" },
+        { ten: "Thiên Sứ", cung: "Tật Ách", loai: "xau" }
+    ];
+    // Map tên cung sang index (bắt đầu từ cung Mệnh, thuận chiều kim đồng hồ)
+    const TEN_CUNG_MAP = {
+        "Mệnh": 0, "Phụ Mẫu": 1, "Phúc Đức": 2, "Điền Trạch": 3,
+        "Quan Lộc": 4, "Nô Bộc": 5, "Thiên Di": 6, "Tật Ách": 7,
+        "Tài Bạch": 8, "Tử Tức": 9, "Phu Thê": 10, "Huynh Đệ": 11
+    };
+    // Hiển thị sao cố định lên bàn lá số
+    function hienThiSaoCoDinh(menhIdx) {
+        // Xóa nhãn cũ
+        document.querySelectorAll('.laso-cell').forEach(cell => {
+            let old = cell.querySelector('.sao-codinh-label');
+            if (old) old.remove();
+        });
+        // B1: An Thiên La, Địa Võng theo chi
+        SAO_CODINH.forEach(sao => {
+            let cellNum = null;
+            if (sao.chi) {
+                // Tìm cell theo chi
+                let found = CUNG_CELLS.find(c => c.chi === sao.chi);
+                if (found) cellNum = found.cell;
+            } else if (sao.cung) {
+                // Tìm cell theo tên cung (tính từ cung Mệnh)
+                let cungIdx = (menhIdx + TEN_CUNG_MAP[sao.cung]) % 12;
+                cellNum = CUNG_CELLS[cungIdx].cell;
+            }
+            if (cellNum) {
+                let cell = document.querySelector('.cell' + cellNum);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend', 
+                        `<div class="sao-codinh-label" style="position:absolute;right:2px;top:65px;color:#d84315;font-weight:bold;font-size:0.95em;z-index:3;">
+                            ${sao.ten}
+                        </div>`);
+                }
+            }
+        });
+    }
+   
+    hienThiSaoCoDinh(IDCungMenh);
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
                         <div><b>Năm xem hạn:</b> ${namxemhan} (${canchiNamXemHan})</div>
