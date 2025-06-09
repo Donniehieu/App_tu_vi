@@ -926,6 +926,100 @@
                 });
             }
             anSaoTheoGioSinh(gio.split(' ')[0]);
+            /**
+ * An sao Hỏa Tinh và Linh Tinh theo quy tắc Bắc phái.
+ * - Dựa vào tuổi (chi năm sinh), giới tính + can năm để xác định chiều.
+ * - Dựa vào chi năm sinh để xác định cung khởi, từ đó chạy đến giờ sinh.
+ * - Hỏa Tinh: Dương Nam/Âm Nữ thuận chiều, Âm Nam/Dương Nữ nghịch chiều.
+ * - Linh Tinh: Dương Nam/Âm Nữ nghịch chiều, Âm Nam/Dương Nữ thuận chiều.
+ */
+
+            function anSaoHoaLinhTinh(chiNam, gioitinh, canNam, gio_sinh_chi) {
+                // Xác định âm dương của năm sinh
+                const DUONG_CAN = ["G.", "B.", "M.", "C.", "N."];
+                let isDuongNam = (DUONG_CAN.includes(canNam) && gioitinh === "Nam");
+                let isAmNu = (!DUONG_CAN.includes(canNam) && gioitinh === "Nữ");
+                let isAmNam = (!DUONG_CAN.includes(canNam) && gioitinh === "Nam");
+                let isDuongNu = (DUONG_CAN.includes(canNam) && gioitinh === "Nữ");
+
+                // Danh sách chi nhóm
+                const nhom_DanNgoTuat = ["Dần", "Ngọ", "Tuất"];
+                const nhom_ThanTyThin = ["Thân", "Tý", "Thìn"];
+                const nhom_TiDauSuu = ["Tỵ", "Dậu", "Sửu"];
+                const nhom_HoiMaoMui = ["Hợi", "Mão", "Mùi"];
+
+                // 12 chi giờ
+                const GIO12 = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+
+                // === 1. Sao Hỏa Tinh ===
+                // - Dương Nam/Âm Nữ thuận, Âm Nam/Dương Nữ nghịch
+                let hoaTinh_cungkhoi = null, hoaTinh_dir = 1;
+                if (nhom_DanNgoTuat.includes(chiNam)) { hoaTinh_cungkhoi = "Sửu"; }
+                else if (nhom_ThanTyThin.includes(chiNam)) { hoaTinh_cungkhoi = "Dần"; }
+                else if (nhom_TiDauSuu.includes(chiNam)) { hoaTinh_cungkhoi = "Mão"; }
+                else if (nhom_HoiMaoMui.includes(chiNam)) { hoaTinh_cungkhoi = "Dậu"; }
+                // Xác định chiều
+                if (isDuongNam || isAmNu) hoaTinh_dir = 1; // thuận
+                else hoaTinh_dir = -1; // nghịch
+
+                // === 2. Sao Linh Tinh ===
+                // - Dương Nam/Âm Nữ nghịch, Âm Nam/Dương Nữ thuận
+                let linhTinh_cungkhoi = null, linhTinh_dir = 1;
+                if (nhom_DanNgoTuat.includes(chiNam)) { linhTinh_cungkhoi = "Mão"; }
+                else if (nhom_ThanTyThin.includes(chiNam)) { linhTinh_cungkhoi = "Tuất"; }
+                else if (nhom_TiDauSuu.includes(chiNam)) { linhTinh_cungkhoi = "Tuất"; }
+                else if (nhom_HoiMaoMui.includes(chiNam)) { linhTinh_cungkhoi = "Tuất"; }
+                // Xác định chiều
+                if (isDuongNam || isAmNu) linhTinh_dir = -1; // nghịch
+                else linhTinh_dir = 1; // thuận
+
+                // === An sao và hiện thị lên bàn lá số ===
+                // Xóa nhãn cũ
+                document.querySelectorAll('.laso-cell').forEach(cell => {
+                    cell.querySelectorAll('.sao-hoa-tinh, .sao-linh-tinh').forEach(e => e.remove());
+                });
+
+                // Hỏa Tinh
+                if (hoaTinh_cungkhoi) {
+                    let startIdx = CUNG_CELLS.findIndex(c => c.chi === hoaTinh_cungkhoi);
+                    let gioIdx = GIO12.indexOf(gio_sinh_chi);
+                    let idx;
+                    if (hoaTinh_dir === 1) idx = (startIdx + gioIdx) % 12;
+                    else idx = (startIdx - gioIdx + 12 * 3) % 12;
+                    let cellNum = CUNG_CELLS[idx].cell;
+                    let cell = document.querySelector('.cell' + cellNum);
+                    if (cell) {
+                        let count = cell.querySelectorAll('.sao-hoa-tinh').length;
+                        let baseTop = 130, offset = 18, top = baseTop + count * offset;
+                        cell.insertAdjacentHTML('beforeend',
+                            `<div class="sao-hoa-tinh" style="position:absolute; right:2px; top:${top}px; color:#e53935; font-size:0.93em; font-weight:bold; z-index:3;">
+                    Hỏa Tinh
+                </div>`);
+                    }
+                }
+
+                // Linh Tinh
+                if (linhTinh_cungkhoi) {
+                    let startIdx = CUNG_CELLS.findIndex(c => c.chi === linhTinh_cungkhoi);
+                    let gioIdx = GIO12.indexOf(gio_sinh_chi);
+                    let idx;
+                    if (linhTinh_dir === 1) idx = (startIdx + gioIdx) % 12;
+                    else idx = (startIdx - gioIdx + 12 * 3) % 12;
+                    let cellNum = CUNG_CELLS[idx].cell;
+                    let cell = document.querySelector('.cell' + cellNum);
+                    if (cell) {
+                        let count = cell.querySelectorAll('.sao-linh-tinh').length;
+                        let baseTop = 148, offset = 18, top = baseTop + count * offset;
+                        cell.insertAdjacentHTML('beforeend',
+                            `<div class="sao-linh-tinh" style="position:absolute; right:2px; top:${top}px; color:#8d6e63; font-size:0.93em; font-weight:bold; z-index:3;">
+                    Linh Tinh
+                </div>`);
+                    }
+                }
+            }
+            //const chiTuoi = canchi.nam.slice(2, 8).trim();
+            const gio_sinh_chi = canchi.gio.split(' ')[1];
+            anSaoHoaLinhTinh(chiNam, gioitinh,canNam,gio_sinh_chi);
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
                         <div><b>Năm xem hạn:</b> ${namxemhan} (${canchiNamXemHan})</div>
