@@ -875,6 +875,57 @@
             // Ngay sau khi highlightMenhCell(cellMenh); ... và highlightThanCell(cellThan);
             // Thêm dòng này:
             anSaoTheoThangSinh(am.thang, IDCungMenh);
+
+            // Các sao an theo giờ sinh
+            const SAO_GIO_SINH = [
+                { ten: "Văn Xương", startChi: "Tuất", direction: -1, className: "sao-gio-vanxuong", color: "#8e24aa" },
+                { ten: "Văn Khúc", startChi: "Thìn", direction: 1, className: "sao-gio-vankhuc", color: "#3949ab" },
+                { ten: "Thai Phụ", startChi: "Ngọ", direction: 1, className: "sao-gio-thaiphu", color: "#2e7d32" },
+                { ten: "Phong Cáo", startChi: "Dần", direction: 1, className: "sao-gio-phongcao", color: "#d84315" },
+                { ten: "Địa Kiếp", startChi: "Hợi", direction: 1, className: "sao-gio-diakiep", color: "#b71c1c" },
+                { ten: "Địa Không", startChi: "Hợi", direction: -1, className: "sao-gio-diakhong", color: "#546e7a" },
+            ];
+
+            /**
+             * An các sao phụ tinh theo giờ sinh lên từng cung
+             * @param {string} gio_sinh_chi - giờ sinh ("Tý",..., "Hợi")
+             */
+            function anSaoTheoGioSinh(gio_sinh_chi) {
+                // Thứ tự 12 chi giờ
+                const GIO12 = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+                // Xóa nhãn cũ
+                document.querySelectorAll('.laso-cell').forEach(cell => {
+                    cell.querySelectorAll('.sao-gio-vanxuong, .sao-gio-vankhuc, .sao-gio-thaiphu, .sao-gio-phongcao, .sao-gio-diakiep, .sao-gio-diakhong')
+                        .forEach(e => e.remove());
+                });
+                SAO_GIO_SINH.forEach(sao => {
+                    let startIdx = CUNG_CELLS.findIndex(c => c.chi === sao.startChi);
+                    if (startIdx === -1) return;
+                    let gioIdx = GIO12.indexOf(gio_sinh_chi);
+                    if (gioIdx === -1) return;
+                    // direction: 1 (thuận), -1 (ngược), giờ Tý là startIdx
+                    let idx;
+                    if (sao.direction === 1) {
+                        idx = (startIdx + gioIdx) % 12;
+                    } else {
+                        idx = (startIdx - gioIdx + 12 * 3) % 12;
+                    }
+                    let cellNum = CUNG_CELLS[idx].cell;
+                    let cell = document.querySelector('.cell' + cellNum);
+                    if (cell) {
+                        // Đếm số nhãn đã có để lùi vị trí cho không bị trùng
+                        let count = cell.querySelectorAll('.' + sao.className).length;
+                        let baseTop = 110; // px, chỉnh phù hợp với các nhãn khác nếu muốn
+                        let offset = 18;  // px
+                        let top = baseTop + count * offset;
+                        cell.insertAdjacentHTML('beforeend',
+                            `<div class="${sao.className}" style="position:absolute; right:2px; top:${top}px; color:${sao.color}; font-size:0.93em; font-weight:bold; z-index:3;">
+                    ${sao.ten}
+                </div>`);
+                    }
+                });
+            }
+            anSaoTheoGioSinh(gio.split(' ')[0]);
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
                         <div><b>Năm xem hạn:</b> ${namxemhan} (${canchiNamXemHan})</div>
