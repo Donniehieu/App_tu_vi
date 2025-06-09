@@ -825,7 +825,56 @@
         });
     }
    
-    hienThiSaoCoDinh(IDCungMenh);
+            hienThiSaoCoDinh(IDCungMenh);
+            // ======== An các sao theo tháng sinh ========
+
+            // Quy tắc mapping: {ten: ..., startChi: ..., startCell: ..., direction: 1/-1}
+            const SAO_THANGSINH = [
+                { ten: 'Thiên Hình', startChi: 'Dậu', direction: 1 }, // Dậu là tháng 1, thuận
+                { ten: 'Thiên Y', startChi: 'Sửu', direction: 1 },    // Sửu là tháng 1, thuận
+                { ten: 'Thiên Riêu', startChi: 'Sửu', direction: 1 }, // Sửu là tháng 1, thuận
+                { ten: 'Thiên Giải', startChi: 'Thân', direction: 1 },// Thân là tháng 1, thuận
+                { ten: 'Địa Giải', startChi: 'Mùi', direction: 1 },   // Mùi là tháng 1, thuận
+                { ten: 'Tả Phụ', startChi: 'Thìn', direction: 1 },    // Thìn là tháng 1, thuận
+                { ten: 'Hữu Bật', startChi: 'Tuất', direction: -1 },  // Tuất là tháng 1, NGƯỢC
+            ];
+
+            function anSaoTheoThangSinh(thang_am, menhIdx) {
+                // Xóa nhãn cũ nếu có
+                document.querySelectorAll('.laso-cell').forEach(cell => {
+                    let olds = cell.querySelectorAll('.phutinhthem-label');
+                    olds.forEach(o => o.remove());
+                });
+
+                SAO_THANGSINH.forEach(sao => {
+                    // Tìm vị trí xuất phát (startIdx) trong CUNG_CELLS
+                    let startIdx = CUNG_CELLS.findIndex(c => c.chi === sao.startChi);
+                    if (startIdx === -1) return;
+                    // Tính vị trí cung sẽ an sao (thang_am: 1~12)
+                    // Do CUNG_CELLS bắt đầu từ Dần (index 0), startIdx là index trong CUNG_CELLS
+                    // Mỗi bước là 1 tháng, tháng 1 là vị trí xuất phát
+                    let idx;
+                    if (sao.direction === 1) {
+                        idx = (startIdx + (thang_am - 1)) % 12;
+                    } else {
+                        idx = (startIdx - (thang_am - 1) + 12 * 3) % 12;
+                    }
+                    let cellNum = CUNG_CELLS[idx].cell;
+                    let cell = document.querySelector('.cell' + cellNum);
+                    if (cell) {
+                        // Hiển thị bên phải (sao xấu) hoặc trái (sao tốt), tạm để bên phải cho đồng nhất
+                        cell.insertAdjacentHTML('beforeend',
+                            `<div class="phutinhthem-label" style="position:absolute; right:2px; top:38px; color:#a83232; font-size:0.93em; font-weight:bold; z-index:3;">
+                    ${sao.ten}
+                </div>`);
+                    }
+                });
+            }
+
+            // ------- GỌI TRONG HÀM SUBMIT, sau khi đã xác định am.thang và IDCungMenh --------
+            // Ngay sau khi highlightMenhCell(cellMenh); ... và highlightThanCell(cellThan);
+            // Thêm dòng này:
+            anSaoTheoThangSinh(am.thang, IDCungMenh);
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
                         <div><b>Năm xem hạn:</b> ${namxemhan} (${canchiNamXemHan})</div>
