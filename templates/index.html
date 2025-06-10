@@ -964,6 +964,43 @@
                 }
             });
         }
+        /**
+ * An các sao Hồng Loan, Thiên Hỷ, Phượng Các, Giải Thần theo chi năm sinh (Bắc phái)
+ * @param {string} chiNam - Chi năm sinh ("Tý", "Sửu", ..., "Hợi")
+ */
+        function anHongLoanThienHyPhuongCacGiaiThan(chiNam) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-hong-loan, .sao-thien-hy, .sao-phuong-cac, .sao-giai-than').forEach(e => e.remove());
+            });
+
+            const CHI12 = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+
+            // Helper: tính vị trí theo xuất phát (cung bắt đầu), đi lùi nghịch kim đồng hồ tới chi năm sinh
+            function idxFrom(startChi) {
+                const idxStart = CUNG_CELLS.findIndex(c => c.chi === startChi);
+                const idxNam = CHI12.indexOf(chiNam);
+                // Quy ước: cung xuất phát là năm Tý, lùi nghịch kim đồng hồ số bước = idxNam
+                return (idxStart - idxNam + 12) % 12;
+            }
+
+            // Hồng Loan: từ Mão, Thiên Hỷ: từ Dậu, Phượng Các/Giải Thần: từ Tuất
+            const saoList = [
+                { ten: "Hồng Loan", className: "sao-hong-loan", color: "#d81b60", top: 120, chi: CUNG_CELLS[idxFrom("Mão")].chi, cell: CUNG_CELLS[idxFrom("Mão")].cell },
+                { ten: "Thiên Hỷ", className: "sao-thien-hy", color: "#1976d2", top: 120, chi: CUNG_CELLS[idxFrom("Dậu")].chi, cell: CUNG_CELLS[idxFrom("Dậu")].cell },
+                { ten: "Phượng Các", className: "sao-phuong-cac", color: "#fbc02d", top: 120, chi: CUNG_CELLS[idxFrom("Tuất")].chi, cell: CUNG_CELLS[idxFrom("Tuất")].cell },
+                { ten: "Giải Thần", className: "sao-giai-than", color: "#388e3c", top: 120, chi: CUNG_CELLS[idxFrom("Tuất")].chi, cell: CUNG_CELLS[idxFrom("Tuất")].cell }
+            ];
+            saoList.forEach(sao => {
+                const cell = document.querySelector('.cell' + sao.cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend',
+                        `<div class="${sao.className}" style="position:absolute; left:2px; top:${sao.top}px; color:${sao.color}; font-size:0.93em; font-weight:bold; z-index:3;">
+                    ${sao.ten}
+                </div>`);
+                }
+            });
+        }
 
         // hàm thực hiện khi bấm nút
         document.getElementById('form_tuvi').addEventListener('submit', function (e) {
@@ -1444,6 +1481,8 @@
             // An Hoa cái  Đào hoa, Thiên mã, Kiếp sát
             anHoaCaiDaoHoaThienMaKiepSat(chiNam);
 
+            // An sao Hồng Loan, Thiên Hỷ, Phượng Các
+            anHongLoanThienHyPhuongCacGiaiThan(chiNam);
 
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
