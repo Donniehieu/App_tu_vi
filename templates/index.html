@@ -1002,6 +1002,44 @@
             });
         }
 
+                /**
+         * An Sao Cô Thần – Quả Tú theo Tam Hội tuổi.
+         * @param {string} chiNam - Chi năm sinh ("Tý", "Sửu", ..., "Hợi")
+         */
+        function anCoThanQuaTu(chiNam) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-co-than, .sao-qua-tu').forEach(e => e.remove());
+            });
+
+            // Quy tắc nhóm chi
+            const nhom = [
+                { list: ["Hợi", "Tý", "Sửu"], cothan: "Dần", quatu: "Tuất" },
+                { list: ["Mão", "Dần", "Thìn"], cothan: "Tỵ", quatu: "Sửu" },
+                { list: ["Tỵ", "Ngọ", "Mùi"], cothan: "Thân", quatu: "Thìn" },
+                { list: ["Thân", "Dậu", "Tuất"], cothan: "Hợi", quatu: "Mùi" }
+            ];
+            let found = nhom.find(g => g.list.includes(chiNam));
+            if (!found) return;
+
+            const saoList = [
+                { ten: "Cô Thần", chi: found.cothan, className: "sao-co-than", color: "#6d4c41", top: 140 },
+                { ten: "Quả Tú", chi: found.quatu, className: "sao-qua-tu", color: "#607d8b", top: 140 }
+            ];
+            saoList.forEach(sao => {
+                const idx = CUNG_CELLS.findIndex(c => c.chi === sao.chi);
+                if (idx !== -1) {
+                    const cell = document.querySelector('.cell' + CUNG_CELLS[idx].cell);
+                    if (cell) {
+                        cell.insertAdjacentHTML('beforeend',
+                            `<div class="${sao.className}" style="position:absolute; left:2px; top:${sao.top}px; color:${sao.color}; font-size:0.93em; font-weight:bold; z-index:3;">
+                        ${sao.ten}
+                    </div>`);
+                    }
+                }
+            });
+        }
+
         // hàm thực hiện khi bấm nút
         document.getElementById('form_tuvi').addEventListener('submit', function (e) {
             e.preventDefault();
@@ -1483,6 +1521,9 @@
 
             // An sao Hồng Loan, Thiên Hỷ, Phượng Các
             anHongLoanThienHyPhuongCacGiaiThan(chiNam);
+
+            // An sao Cô Thần, Quả Tú
+            anCoThanQuaTu(chiNam);
 
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
