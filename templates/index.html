@@ -1105,6 +1105,63 @@
                 { taPhu: thangSinhSaoIdx.taPhuIdx, huuBat: thangSinhSaoIdx.huuBatIdx },
                 { vanXuong: gioSinhSaoIdx.vanXuongIdx, vanKhuc: gioSinhSaoIdx.vanKhucIdx }
             );
+
+            // === AN SAO LỘC TỒN THEO CAN NĂM SINH ===
+            /**
+             * @param {string} canNam - Thiên can năm sinh ("G.", "Ấ.", "B.", "Đ.", "M.", "K.", "C.", "T.", "N.", "Q.")
+             * @returns {string} - Chi của cung an sao Lộc Tồn ("Dần", ...)
+             */
+            function getCungLocTonByCan(canNam) {
+                // Quy tắc mapping CHUẨN: mỗi can ứng với 1 cung
+                // G. - Giáp: Dần
+                // Ấ. - Ất: Mão
+                // B. - Bính: Tỵ
+                // Đ. - Đinh: Ngọ
+                // M. - Mậu: Tỵ
+                // K. - Kỷ: Ngọ
+                // C. - Canh: Thân
+                // T. - Tân: Dậu
+                // N. - Nhâm: Hợi
+                // Q. - Quý: Tý
+
+                const map = {
+                    "G.": "Dần",  // Giáp
+                    "Ấ.": "Mão",  // Ất
+                    "B.": "Tỵ",   // Bính
+                    "Đ.": "Ngọ",  // Đinh
+                    "M.": "Tỵ",   // Mậu
+                    "K.": "Ngọ",  // Kỷ
+                    "C.": "Thân", // Canh
+                    "T.": "Dậu",  // Tân
+                    "N.": "Hợi",  // Nhâm
+                    "Q.": "Tý"    // Quý
+                };
+                return map[canNam] || "Dần";
+            }
+            // Hàm an sao Lộc Tồn lên bàn lá số
+            /**
+             * @param {string} canNam - thiên can năm sinh
+             */
+            function anSaoLocTon(canNam) {
+                // Xóa nhãn cũ
+                document.querySelectorAll('.laso-cell').forEach(cell => {
+                    let old = cell.querySelector('.sao-locton-label');
+                    if (old) old.remove();
+                });
+                const chiLocTon = getCungLocTonByCan(canNam);
+                let found = CUNG_CELLS.find(c => c.chi === chiLocTon);
+                if (found) {
+                    let cell = document.querySelector('.cell' + found.cell);
+                    if (cell) {
+                        cell.insertAdjacentHTML('beforeend',
+                            `<div class="sao-locton-label" style="position:absolute; left:2px; top:65px; color:#388e3c; font-weight:bold; font-size:0.96em; z-index:3;">
+                        Lộc Tồn
+                    </div>`);
+                    }
+                }
+            }
+           
+            anSaoLocTon(canNam);
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
                         <div><b>Năm xem hạn:</b> ${namxemhan} (${canchiNamXemHan})</div>
