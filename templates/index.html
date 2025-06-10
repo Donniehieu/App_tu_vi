@@ -719,6 +719,86 @@
             }
         }
 
+        // ====== AN 12 SAO VÒNG LỘC TỒN & VĂN TINH, ĐƯỜNG PHÙ, QUỐC ẤN ======
+
+        // Danh sách 12 sao vòng Lộc Tồn, theo thứ tự an thuận/ nghịch
+        const SAO_LOC_TON_VONG = [
+            "Bác Sĩ", "Lực Sĩ", "Thanh Long", "Tiểu Hao", "Tướng Quân", "Tấu Thư",
+            "Phi Liêm", "Hỷ Thần", "Bệnh Phù", "Đại Hao", "Phục Binh", "Quan Phủ"
+        ];
+
+        /**
+         * Hàm an 12 sao vòng Lộc Tồn (Bác Sĩ ... Quan Phủ) lên bàn lá số
+         * @param {number} locTonIdx - Index vị trí Lộc Tồn (0-11)
+         * @param {string} amduong - "Dương Nam", "Dương Nữ", "Âm Nam", "Âm Nữ"
+         */
+        function anVongLocTon12Sao(locTonIdx, amduong) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-vong-locton').forEach(e => e.remove());
+            });
+
+            // Chiều an sao: thuận (dương nam, âm nữ), nghịch (âm nam, dương nữ)
+            const isThuan = (amduong === "Dương Nam" || amduong === "Âm Nữ");
+
+            for (let i = 0; i < 12; ++i) {
+                // Vị trí sao: locTonIdx + i (thuận), locTonIdx - i (nghịch)
+                let idx = isThuan
+                    ? (locTonIdx + i) % 12
+                    : (locTonIdx - i + 12 * 2) % 12;
+                let cellNum = CUNG_CELLS[idx].cell;
+                let cell = document.querySelector('.cell' + cellNum);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend',
+                        `<div class="sao-vong-locton" style="position:absolute; left:2px; top:${20 + i * 18}px; color:#6d4c41; font-size:0.93em; font-weight:bold; z-index:3;">
+                        ${SAO_LOC_TON_VONG[i]}
+                    </div>`);
+                }
+            }
+        }
+
+        /**
+         * Hàm an các sao Lưu Niên Văn Tinh, Đường Phù, Quốc Ấn dựa trên vị trí Lộc Tồn
+         * @param {number} locTonIdx
+         */
+        function anVanTinhDuongPhuQuocAn(locTonIdx) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-van-tinh, .sao-duong-phu, .sao-quoc-an').forEach(e => e.remove());
+            });
+
+            // Lưu Niên Văn Tinh: tiến 3 ô thuận
+            let vanTinhIdx = (locTonIdx + 3) % 12;
+            let cellVanTinh = document.querySelector('.cell' + CUNG_CELLS[vanTinhIdx].cell);
+            if (cellVanTinh) {
+                cellVanTinh.insertAdjacentHTML('beforeend',
+                    `<div class="sao-van-tinh" style="position:absolute; left:2px; top:100px; color:#0277bd; font-size:0.95em; font-weight:bold; z-index:3;">
+                    Văn Tinh
+                </div>`);
+            }
+
+            // Đường Phù: tiến 5 ô thuận
+            let duongPhuIdx = (locTonIdx + 5) % 12;
+            let cellDuongPhu = document.querySelector('.cell' + CUNG_CELLS[duongPhuIdx].cell);
+            if (cellDuongPhu) {
+                cellDuongPhu.insertAdjacentHTML('beforeend',
+                    `<div class="sao-duong-phu" style="position:absolute; left:2px; top:118px; color:#388e3c; font-size:0.95em; font-weight:bold; z-index:3;">
+                    Đường Phù
+                </div>`);
+            }
+
+            // Quốc Ấn: tiến 8 ô thuận
+            let quocAnIdx = (locTonIdx + 8) % 12;
+            let cellQuocAn = document.querySelector('.cell' + CUNG_CELLS[quocAnIdx].cell);
+            if (cellQuocAn) {
+                cellQuocAn.insertAdjacentHTML('beforeend',
+                    `<div class="sao-quoc-an" style="position:absolute; left:2px; top:136px; color:#d84315; font-size:0.95em; font-weight:bold; z-index:3;">
+                    Quốc Ấn
+                </div>`);
+            }
+        }
+
+
 
         // hàm thực hiện khi bấm nút
         document.getElementById('form_tuvi').addEventListener('submit', function (e) {
@@ -1180,6 +1260,15 @@
             );
 
             hienThiLocTonKinhDuongDaLa(IDCungMenh, canNam);
+            // Xác định vị trí Lộc Tồn
+            const locTonIdx = viTriLocTon(canNam);
+
+            // An vòng Lộc Tồn 12 sao
+            anVongLocTon12Sao(locTonIdx, amduong);
+
+            // An Văn Tinh, Đường Phù, Quốc Ấn
+            anVanTinhDuongPhuQuocAn(locTonIdx);
+
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
                         <div><b>Năm xem hạn:</b> ${namxemhan} (${canchiNamXemHan})</div>
