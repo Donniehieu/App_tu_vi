@@ -845,6 +845,85 @@
             }
         }
 
+        // === VÒNG THÁI TUẾ, các sao đi kèm, Thiên Khốc ===
+        const SAO_VONG_THAI_TUE = [
+            "Thái Tuế", "Thiếu Dương", "Tang Môn", "Thiếu Âm", "Quan Phù", "Tử Phù",
+            "Tuế Phá", "Long Đức", "Bạch Hổ", "Phúc Đức", "Điếu Khách", "Trực Phù"
+        ];
+        // Các sao đi kèm vòng Thái Tuế
+        const KEM_VONG_THAI_TUE = {
+            "Thiếu Dương": { ten: "Thiên Không", color: "#d84315" },
+            "Quan Phù": { ten: "Long Trì", color: "#00bcd4" },
+            "Tử Phù": { ten: "Nguyệt Đức", color: "#ff9800" },
+            "Tuế Phá": { ten: "Thiên Hư", color: "#6d4c41" },
+            "Phúc Đức": { ten: "Thiên Đức", color: "#388e3c" }
+        };
+
+        /**
+         * An vòng Thái Tuế và các sao đi kèm theo chi năm sinh
+         * @param {string} chiNam - Chi năm sinh ("Tý", ...)
+         */
+        function anVongThaiTueVaKem(chiNam) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-thai-tue, .sao-tang-mon, .sao-thieu-duong, .sao-thieu-am, .sao-quan-phu, .sao-tu-phu, .sao-tue-pha, .sao-long-duc, .sao-bach-ho, .sao-phuc-duc, .sao-dieu-khach, .sao-truc-phu, .sao-thien-khong, .sao-long-tri, .sao-nguyet-duc, .sao-thien-hu, .sao-thien-duc').forEach(e => e.remove());
+            });
+
+            // Vị trí chi năm sinh trong CUNG_CELLS
+            const idxStart = CUNG_CELLS.findIndex(c => c.chi === chiNam);
+            for (let i = 0; i < 12; ++i) {
+                const idx = (idxStart + i) % 12;
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idx].cell);
+                if (!cell) continue;
+                const tenSao = SAO_VONG_THAI_TUE[i];
+                // Class và màu
+                const className = "sao-" + tenSao.toLowerCase().replace(/\s/g, "-");
+                const color = i === 0 ? "#d32f2f" : "#455a64";
+                cell.insertAdjacentHTML('beforeend',
+                    `<div class="${className}" style="position:absolute; right:2px; top:${20 + i * 18}px; color:${color}; font-size:0.93em; font-weight:bold; z-index:3;">
+                    ${tenSao}
+                </div>`);
+                // An sao đi kèm nếu có
+                if (KEM_VONG_THAI_TUE[tenSao]) {
+                    const kem = KEM_VONG_THAI_TUE[tenSao];
+                    cell.insertAdjacentHTML('beforeend',
+                        `<div class="sao-${kem.ten.toLowerCase().replace(/\s/g, "-")}" style="position:absolute; right:2px; top:${32 + i * 18}px; color:${kem.color}; font-size:0.88em; font-weight:bold; z-index:3;">
+                        ${kem.ten}
+                    </div>`);
+                }
+            }
+        }
+
+                /**
+          * An sao Thiên Khốc theo quy tắc: cung Ngọ là năm Tý, chạy ngược kim đồng hồ tới năm sinh.
+          * Ví dụ: người tuổi Tý thì Thiên Khốc tại Ngọ, tuổi Hợi thì tại Mùi,...
+          * @param {string} chiNam - Chi năm sinh ("Tý", "Sửu", ..., "Hợi")
+          */
+        function anSaoThienKhoc(chiNam) {
+            // Xóa nhãn cũ nếu có
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-thien-khoc').forEach(e => e.remove());
+            });
+            // 12 chi theo thứ tự vòng kim đồng hồ trên bàn lá số
+            // CUNG_CELLS bắt đầu từ Dần (index 0), theo chuẩn Bắc phái
+            // Chúng ta sẽ quy định: cung Ngọ (chi "Ngọ") là năm Tý
+            // Từ Ngọ lùi nghịch (ngược kim đồng hồ) đến năm sinh
+            // Số bước = vị trí chi năm sinh trong CHI12
+            const CHI12 = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+            const idxNgo = CUNG_CELLS.findIndex(c => c.chi === "Ngọ"); // Vị trí xuất phát cung Ngọ
+            const idxChiNamTrongCHI12 = CHI12.indexOf(chiNam); // 0~11
+            if (idxNgo === -1 || idxChiNamTrongCHI12 === -1) return;
+            // Lùi nghịch idxNgo - steps (modulo 12)
+            let idxKhoc = (idxNgo - idxChiNamTrongCHI12 + 12) % 12;
+            const cell = document.querySelector('.cell' + CUNG_CELLS[idxKhoc].cell);
+            if (cell) {
+                cell.insertAdjacentHTML('beforeend',
+                    `<div class="sao-thien-khoc" style="position:absolute; right:2px; top:240px; color:#6a1b9a; font-size:0.97em; font-weight:bold; z-index:3;">
+                Thiên Khốc
+            </div>`);
+            }
+        }
+
 
 
         // hàm thực hiện khi bấm nút
@@ -1318,6 +1397,10 @@
 
             // An Khôi Việt Lưu Hà
             anSaoThienKhoiVietLuuHa(canNam);
+
+            // An sao vòng Thái Tuế
+            anVongThaiTueVaKem(chiNam);
+            anSaoThienKhoc(chiNam);
 
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
