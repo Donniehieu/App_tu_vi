@@ -797,6 +797,53 @@
                 </div>`);
             }
         }
+                /**
+           * An sao Thiên Khôi, Thiên Việt (tốt) và Lưu Hà (xấu), Thiên Trù, Thiên Quan, Thiên Phúc theo thiên can năm sinh
+           * @param {string} canNam - Thiên can năm sinh ("G.","Ấ.",...)
+           */
+        function anSaoThienKhoiVietLuuHa(canNam) {
+            // Xóa nhãn cũ nếu có
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-thien-khoi, .sao-thien-viet, .sao-luu-ha, .sao-thien-tru, .sao-thien-quan').forEach(e => e.remove());
+            });
+
+            // Bản đồ an sao theo thiên can
+            const MAP = {
+                "G.": { khoi: "Sửu", viet: "Mùi", luuha: "Dậu", thientru: "Tỵ", thienquan:"Mùi", thienphuc:"Dậu"},    // Giáp
+                "Ấ.": { khoi: "Tý", viet: "Thân", luuha: "Tuất", thientru: "Ngọ", thienquan: "Thìn", thienphuc: "Thân" },   // Ất
+                "B.": { khoi: "Hợi", viet: "Dậu", luuha: "Mùi", thientru: "Tý", thienquan: "Tỵ", thienphuc: "Tý"},    // Bính
+                "Đ.": { khoi: "Hợi", viet: "Dậu", luuha: "Thân", thientru: "Tỵ", thienquan: "Dần", thienphuc: "Hợi"},   // Đinh
+                "M.": { khoi: "Sửu", viet: "Mùi", luuha: "Tỵ", thientru: "Ngọ", thienquan: "Mão", thienphuc: "Mão"},     // Mậu
+                "K.": { khoi: "Tý", viet: "Thân", luuha: "Ngọ", thientru: "Thân", thienquan: "Dậu",thienphuc: "Dần"},    // Kỷ
+                "C.": { khoi: "Ngọ", viet: "Dần", luuha: "Mão", thientru: "Dần", thienquan: "Hợi",thienphuc: "Ngọ"},    // Canh
+                "T.": { khoi: "Ngọ", viet: "Dần", luuha: "Thìn", thientru: "Ngọ", thienquan: "Dậu",thienphuc: "Tỵ"},   // Tân
+                "N.": { khoi: "Mão", viet: "Tỵ", luuha: "Hợi", thientru: "Dậu", thienquan: "Tuất", thienphuc: "Ngọ"},     // Nhâm
+                "Q.": { khoi: "Mão", viet: "Tỵ", luuha: "Dần", thientru: "Tuất", thienquan: "Ngọ", thienphuc: "Tỵ"},     // Quý
+            };
+
+            const data = MAP[canNam];
+            if (!data) return;
+            // Tìm vị trí cell
+            for (const [ten, chi, className, color, top] of [
+                ["Thiên Khôi", data.khoi, "sao-thien-khoi", "#2e7d32", 160],
+                ["Thiên Việt", data.viet, "sao-thien-viet", "#1976d2", 180],
+                ["Lưu Hà", data.luuha, "sao-luu-ha", "#c62828", 150],
+                ["Thiên Trù", data.thientru, "sao-thien-tru", "#c62828", 170],
+                ["Thiên Quan", data.thienquan, "sao-thien-quan", "#c62828", 190],
+                ["Thiên Phúc", data.thienphuc, "sao-thien-phuc", "#c62828", 210]
+            ]) {
+                const idx = CUNG_CELLS.findIndex(c => c.chi === chi);
+                if (idx !== -1) {
+                    const cell = document.querySelector('.cell' + CUNG_CELLS[idx].cell);
+                    if (cell) {
+                        cell.insertAdjacentHTML('beforeend',
+                            `<div class="${className}" style="position:absolute; left:2px; top:${top}px; color:${color}; font-size:0.95em; font-weight:bold; z-index:3;">
+                            ${ten}
+                        </div>`);
+                    }
+                }
+            }
+        }
 
 
 
@@ -1268,6 +1315,9 @@
 
             // An Văn Tinh, Đường Phù, Quốc Ấn
             anVanTinhDuongPhuQuocAn(locTonIdx);
+
+            // An Khôi Việt Lưu Hà
+            anSaoThienKhoiVietLuuHa(canNam);
 
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
