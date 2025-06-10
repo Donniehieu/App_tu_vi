@@ -1040,6 +1040,41 @@
             });
         }
 
+                /**
+         * An sao Phá Toái theo quy tắc Tam Hợp tuổi
+         * @param {string} chiNam - Chi năm sinh ("Tý", "Sửu", ..., "Hợi")
+         */
+        function anPhaToai(chiNam) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-pha-toai').forEach(e => e.remove());
+            });
+
+            // Quy tắc nhóm chi
+            const nhom = [
+                { list: ["Dần", "Thân", "Tỵ", "Hợi"], phatoai: "Dậu" },
+                { list: ["Tý", "Ngọ", "Mão", "Dậu"], phatoai: "Tỵ" },
+                { list: ["Thìn", "Tuất", "Sửu", "Mùi"], phatoai: "Sửu" }
+            ];
+            let found = nhom.find(g => g.list.includes(chiNam));
+            if (!found) return;
+
+            const idx = CUNG_CELLS.findIndex(c => c.chi === found.phatoai);
+            if (idx !== -1) {
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idx].cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend',
+                        `<div class="sao-pha-toai" style="position:absolute; left:2px; top:155px; color:#b71c1c; font-size:0.92em; font-weight:bold; z-index:3;">
+                    Phá Toái
+                </div>`);
+                }
+            }
+        }
+
+
+
+
+
         // hàm thực hiện khi bấm nút
         document.getElementById('form_tuvi').addEventListener('submit', function (e) {
             e.preventDefault();
@@ -1524,6 +1559,9 @@
 
             // An sao Cô Thần, Quả Tú
             anCoThanQuaTu(chiNam);
+
+            // An sao Phá toái
+            anPhaToai(chiNam);
 
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
