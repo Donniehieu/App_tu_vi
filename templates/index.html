@@ -924,7 +924,46 @@
             }
         }
 
+                /**
+         * An các sao Hoa Cái, Đào Hoa, Thiên Mã, Kiếp Sát theo chi năm sinh (Bắc phái)
+         * @param {string} chiNam - Chi năm sinh ("Tý", "Sửu", ..., "Hợi")
+         */
+        function anHoaCaiDaoHoaThienMaKiepSat(chiNam) {
+            // Xoá nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-hoa-cai, .sao-dao-hoa, .sao-thien-ma, .sao-kiep-sat').forEach(e => e.remove());
+            });
 
+            // Quy tắc nhóm chi
+            const nhom = [
+                { list: ["Dần", "Ngọ", "Tuất"], hoacai: "Tuất", daohoa: "Mão", thienma: "Thân", kiepsat: "Hợi" },
+                { list: ["Thân", "Tý", "Thìn"], hoacai: "Thìn", daohoa: "Dậu", thienma: "Dần", kiepsat: "Tỵ" },
+                { list: ["Tỵ", "Dậu", "Sửu"], hoacai: "Sửu", daohoa: "Ngọ", thienma: "Hợi", kiepsat: "Dần" },
+                { list: ["Hợi", "Mão", "Mùi"], hoacai: "Mùi", daohoa: "Tý", thienma: "Tỵ", kiepsat: "Thân" }
+            ];
+            let found = nhom.find(g => g.list.includes(chiNam));
+            if (!found) return;
+
+            // An lên bàn lá số
+            const saoList = [
+                { ten: "Hoa Cái", chi: found.hoacai, className: "sao-hoa-cai", color: "#7b1fa2", top: 180},
+                { ten: "Đào Hoa", chi: found.daohoa, className: "sao-dao-hoa", color: "#f06292", top:190},
+                { ten: "Thiên Mã", chi: found.thienma, className: "sao-thien-ma", color: "#0277bd", top:200},
+                { ten: "Kiếp Sát", chi: found.kiepsat, className: "sao-kiep-sat", color: "#d84315", top: 210 }
+            ];
+            saoList.forEach(sao => {
+                const idx = CUNG_CELLS.findIndex(c => c.chi === sao.chi);
+                if (idx !== -1) {
+                    const cell = document.querySelector('.cell' + CUNG_CELLS[idx].cell);
+                    if (cell) {
+                        cell.insertAdjacentHTML('beforeend',
+                            `<div class="${sao.className}" style="position:absolute; left:2px; top:${sao.top}px; color:${sao.color}; font-size:0.94em; font-weight:bold; z-index:3;">
+                        ${sao.ten}
+                    </div>`);
+                    }
+                }
+            });
+        }
 
         // hàm thực hiện khi bấm nút
         document.getElementById('form_tuvi').addEventListener('submit', function (e) {
@@ -1401,6 +1440,10 @@
             // An sao vòng Thái Tuế
             anVongThaiTueVaKem(chiNam);
             anSaoThienKhoc(chiNam);
+
+            // An Hoa cái  Đào hoa, Thiên mã, Kiếp sát
+            anHoaCaiDaoHoaThienMaKiepSat(chiNam);
+
 
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
