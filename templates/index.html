@@ -646,6 +646,79 @@
                 phaQuan: tienCung(idxThienPhu, 10),
             };
         }
+        /**
+         * An sao Lộc Tồn dựa vào can năm sinh (theo Bắc phái)
+         * @param {string} canNam - Thiên can năm sinh ("G.", "Ấ.", "B.", ...)
+         * @returns {number} - Vị trí cung Lộc Tồn (index 0-11, theo CUNG_CELLS)
+         */
+        function viTriLocTon(canNam) {
+            // Bảng Lộc Tồn Bắc phái: (bắt đầu từ Dần, thuận chiều kim đồng hồ)
+            // Giáp, Kỷ: Dần (0)
+            // Ất, Canh: Mão (1)
+            // Bính, Tân: Tỵ (3)
+            // Đinh, Nhâm: Ngọ (4)
+            // Mậu, Quý: Thân (6)
+            const CAN_MAP = {
+                "G.": 0, "K.": 0, // Giáp, Kỷ -> Dần
+                "Ấ.": 1, "C.": 1, // Ất, Canh -> Mão
+                "B.": 3, "T.": 3, // Bính, Tân -> Tỵ
+                "Đ.": 4, "N.": 4, // Đinh, Nhâm -> Ngọ
+                "M.": 6, "Q.": 6  // Mậu, Quý -> Thân
+            };
+            return CAN_MAP[canNam] ?? 0;
+        }
+
+        /**
+         * An sao Kình Dương và Đà La dựa vào vị trí Lộc Tồn
+         * @param {number} locTonIdx - Index cung Lộc Tồn (0-11)
+         * @returns {object} - { kinhDuongIdx: index, daLaIdx: index }
+         */
+        function viTriKinhDuongDaLa(locTonIdx) {
+            // Kình Dương: từ Lộc Tồn tiến 1 cung thuận chiều (kim đồng hồ)
+            // Đà La: từ Lộc Tồn tiến 1 cung ngược chiều (ngược kim đồng hồ)
+            const kinhDuongIdx = (locTonIdx + 1) % 12;
+            const daLaIdx = (locTonIdx + 11) % 12;
+            return { kinhDuongIdx, daLaIdx };
+        }
+
+        /**
+         * Hiển thị sao Lộc Tồn, Kình Dương, Đà La lên bàn lá số
+         * @param {number} menhIdx - index cung mệnh (0-11)
+         * @param {string} canNam
+         */
+        function hienThiLocTonKinhDuongDaLa(menhIdx, canNam) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-loc-ton, .sao-kinh-duong, .sao-da-la').forEach(e => e.remove());
+            });
+            // An vị trí Lộc Tồn
+            const locTonIdx = viTriLocTon(canNam);
+            const { kinhDuongIdx, daLaIdx } = viTriKinhDuongDaLa(locTonIdx);
+
+            // Hiển thị
+            const cellLocTon = document.querySelector('.cell' + CUNG_CELLS[locTonIdx].cell);
+            if (cellLocTon) {
+                cellLocTon.insertAdjacentHTML('beforeend',
+                    `<div class="sao-loc-ton" style="position:absolute; left:2px; top:65px; color:#009688; font-weight:bold; font-size:0.96em; z-index:3;">
+                    Lộc Tồn
+                </div>`);
+            }
+            const cellKinhDuong = document.querySelector('.cell' + CUNG_CELLS[kinhDuongIdx].cell);
+            if (cellKinhDuong) {
+                cellKinhDuong.insertAdjacentHTML('beforeend',
+                    `<div class="sao-kinh-duong" style="position:absolute; right:2px; top:85px; color:#1976d2; font-weight:bold; font-size:0.95em; z-index:3;">
+                    Kình Dương
+                </div>`);
+            }
+            const cellDaLa = document.querySelector('.cell' + CUNG_CELLS[daLaIdx].cell);
+            if (cellDaLa) {
+                cellDaLa.insertAdjacentHTML('beforeend',
+                    `<div class="sao-da-la" style="position:absolute; right:2px; top:105px; color:#c62828; font-weight:bold; font-size:0.95em; z-index:3;">
+                    Đà La
+                </div>`);
+            }
+        }
+
 
         // hàm thực hiện khi bấm nút
         document.getElementById('form_tuvi').addEventListener('submit', function (e) {
@@ -1106,62 +1179,7 @@
                 { vanXuong: gioSinhSaoIdx.vanXuongIdx, vanKhuc: gioSinhSaoIdx.vanKhucIdx }
             );
 
-            // === AN SAO LỘC TỒN THEO CAN NĂM SINH ===
-            /**
-             * @param {string} canNam - Thiên can năm sinh ("G.", "Ấ.", "B.", "Đ.", "M.", "K.", "C.", "T.", "N.", "Q.")
-             * @returns {string} - Chi của cung an sao Lộc Tồn ("Dần", ...)
-             */
-            function getCungLocTonByCan(canNam) {
-                // Quy tắc mapping CHUẨN: mỗi can ứng với 1 cung
-                // G. - Giáp: Dần
-                // Ấ. - Ất: Mão
-                // B. - Bính: Tỵ
-                // Đ. - Đinh: Ngọ
-                // M. - Mậu: Tỵ
-                // K. - Kỷ: Ngọ
-                // C. - Canh: Thân
-                // T. - Tân: Dậu
-                // N. - Nhâm: Hợi
-                // Q. - Quý: Tý
-
-                const map = {
-                    "G.": "Dần",  // Giáp
-                    "Ấ.": "Mão",  // Ất
-                    "B.": "Tỵ",   // Bính
-                    "Đ.": "Ngọ",  // Đinh
-                    "M.": "Tỵ",   // Mậu
-                    "K.": "Ngọ",  // Kỷ
-                    "C.": "Thân", // Canh
-                    "T.": "Dậu",  // Tân
-                    "N.": "Hợi",  // Nhâm
-                    "Q.": "Tý"    // Quý
-                };
-                return map[canNam] || "Dần";
-            }
-            // Hàm an sao Lộc Tồn lên bàn lá số
-            /**
-             * @param {string} canNam - thiên can năm sinh
-             */
-            function anSaoLocTon(canNam) {
-                // Xóa nhãn cũ
-                document.querySelectorAll('.laso-cell').forEach(cell => {
-                    let old = cell.querySelector('.sao-locton-label');
-                    if (old) old.remove();
-                });
-                const chiLocTon = getCungLocTonByCan(canNam);
-                let found = CUNG_CELLS.find(c => c.chi === chiLocTon);
-                if (found) {
-                    let cell = document.querySelector('.cell' + found.cell);
-                    if (cell) {
-                        cell.insertAdjacentHTML('beforeend',
-                            `<div class="sao-locton-label" style="position:absolute; left:2px; top:65px; color:#388e3c; font-weight:bold; font-size:0.96em; z-index:3;">
-                        Lộc Tồn
-                    </div>`);
-                    }
-                }
-            }
-           
-            anSaoLocTon(canNam);
+            hienThiLocTonKinhDuongDaLa(IDCungMenh, canNam);
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
                         <div><b>Năm xem hạn:</b> ${namxemhan} (${canchiNamXemHan})</div>
