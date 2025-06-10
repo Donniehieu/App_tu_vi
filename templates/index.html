@@ -1070,6 +1070,49 @@
                 }
             }
         }
+                /**
+         * An sao Thiên Tài, Thiên Thọ theo quy tắc:
+         * - Thiên Tài: từ cung Mệnh (coi đó là năm Tý) đi thuận chiều kim đồng hồ tới chi năm sinh
+         * - Thiên Thọ: từ cung an Thân (vị trí cung an thân, không phải chi Thân) coi là năm Tý, đi thuận chiều kim đồng hồ tới chi năm sinh
+         * @param {string} chiNam - Chi năm sinh ("Tý", "Sửu", ..., "Hợi")
+         * @param {string} menhChi - Chi tại cung Mệnh ("Tý",..., "Hợi")
+         * @param {string} thanChi - Chi tại cung an Thân ("Tý",..., "Hợi")
+         */
+        function anThienTaiThienTho(chiNam, menhChi, thanChi) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-thien-tai, .sao-thien-tho').forEach(e => e.remove());
+            });
+
+            const CHI12 = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+
+            // Tìm vị trí cung Mệnh và cung an Thân trong bàn
+            const idxMenh = CUNG_CELLS.findIndex(c => c.chi === menhChi);
+            const idxThan = CUNG_CELLS.findIndex(c => c.chi === thanChi);
+            const idxNam = CHI12.indexOf(chiNam);
+
+            // Thiên Tài: từ cung Mệnh là năm Tý, tính thuận tới chi năm sinh
+            let idxThienTai = (idxMenh + idxNam) % 12;
+            // Thiên Thọ: từ cung an Thân là năm Tý, tính thuận tới chi năm sinh
+            let idxThienTho = (idxThan + idxNam) % 12;
+
+            // An sao Thiên Tài
+            let cellThienTai = document.querySelector('.cell' + CUNG_CELLS[idxThienTai].cell);
+            if (cellThienTai) {
+                cellThienTai.insertAdjacentHTML('beforeend',
+                    `<div class="sao-thien-tai" style="position:absolute; left:2px; top:220px; color:#ff9800; font-size:0.94em; font-weight:bold; z-index:3;">
+                Thiên Tài
+            </div>`);
+            }
+            // An sao Thiên Thọ
+            let cellThienTho = document.querySelector('.cell' + CUNG_CELLS[idxThienTho].cell);
+            if (cellThienTho) {
+                cellThienTho.insertAdjacentHTML('beforeend',
+                    `<div class="sao-thien-tho" style="position:absolute; left:2px; top:240px; color:#009688; font-size:0.94em; font-weight:bold; z-index:3;">
+                Thiên Thọ
+            </div>`);
+            }
+        }
 
 
 
@@ -1562,6 +1605,9 @@
 
             // An sao Phá toái
             anPhaToai(chiNam);
+
+            // An sao Thiên Tài Thiên Thọ
+            anThienTaiThienTho(chiNam, chiMenh, chiThan);
 
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
