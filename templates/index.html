@@ -1151,6 +1151,68 @@
             </div>`);
             }
         }
+                /**
+         * An vòng Tràng Sinh cho 12 cung tử vi
+         * @param {string} tenCuc - Tên cục ("Thủy nhị cục", "Mộc tam cục", "Kim tứ cục", "Thổ ngũ cục", "Hỏa lục cục")
+         * @param {string} amduong - "Dương Nam", "Dương Nữ", "Âm Nam", "Âm Nữ"
+         */
+        function anVongTrangSinh(tenCuc, amduong) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-trang-sinh').forEach(e => e.remove());
+            });
+
+            // Xác định chiều an sao
+            const isThuan = (amduong === "Dương Nam" || amduong === "Âm Nữ") ? 1 : -1;
+
+            // Vị trí khởi vòng Tràng Sinh theo cục
+            const khoiMap = {
+                "Thủy nhị cục": "Thân",
+                "Mộc tam cục": "Hợi",
+                "Kim tứ cục": "Tỵ",
+                "Thổ ngũ cục": "Thân",
+                "Hỏa lục cục": "Dần"
+            };
+            const viTriKhoiChi = khoiMap[tenCuc];
+            if (!viTriKhoiChi) return;
+
+            // Thứ tự 12 sao vòng Tràng Sinh
+            const SAO_TRANG_SINH = [
+                "Tràng Sinh", "Mộc Dục", "Quan Đới", "Lâm Quan", "Đế Vượng", "Suy",
+                "Bệnh", "Tử", "Mộ", "Tuyệt", "Thai", "Dưỡng"
+            ];
+
+            // Tìm vị trí khởi đầu trên bàn lá số
+            let idxStart = CUNG_CELLS.findIndex(c => c.chi === viTriKhoiChi);
+            if (idxStart === -1) return;
+
+            // An từng sao, căn giữa sát đáy, bôi đậm
+            for (let i = 0; i < 12; ++i) {
+                let idx;
+                if (isThuan === 1) {
+                    idx = (idxStart + i) % 12;
+                } else {
+                    idx = (idxStart - i + 12) % 12;
+                }
+                let cellNum = CUNG_CELLS[idx].cell;
+                let cell = document.querySelector('.cell' + cellNum);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend',
+                        `<div class="sao-trang-sinh" style="
+                    position:absolute;
+                    left:0; right:0;
+                    bottom:${2}px;
+                    text-align:center;
+                    color:#00897b;
+                    font-size:0.97em;
+                    font-weight:bold;
+                    z-index:3;
+                ">
+                    ${SAO_TRANG_SINH[i]}
+                </div>`);
+                }
+            }
+        }
 
 
 
@@ -1649,6 +1711,9 @@
 
             // An Đẩu Quân
             anDauQuan(chiNam, am.thang, canchi.gio.split(' ')[1]);
+
+            // An vòng Trường Sinh
+            anVongTrangSinh(cuc, amduong);
 
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
