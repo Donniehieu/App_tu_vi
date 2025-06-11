@@ -1781,6 +1781,54 @@
                 }
             }
         }
+        /**
+ * An Lưu Kình Dương và Lưu Đà La dựa vào vị trí Lưu Lộc Tồn (theo can năm xem hạn)
+ * @param {string} canNamXem - Thiên can năm xem hạn ("G.", "Ấ.", "B.", ...)
+ */
+        function anLuuKinhDuongDaLa(canNamXem) {
+            // Xoá nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-luu-kinh-duong, .sao-luu-da-la').forEach(e => e.remove());
+            });
+
+            // Quy tắc vị trí Lộc Tồn
+            const CAN_MAP = {
+                "G.": "Dần",   // Giáp
+                "Ấ.": "Mão",   // Ất
+                "B.": "Tỵ",    // Bính
+                "Đ.": "Ngọ",   // Đinh
+                "M.": "Tỵ",    // Mậu
+                "K.": "Ngọ",   // Kỷ
+                "C.": "Thân",  // Canh
+                "T.": "Dậu",   // Tân
+                "N.": "Hợi",   // Nhâm
+                "Q.": "Tý"     // Quý
+            };
+            const chiLocTon = CAN_MAP[canNamXem];
+            if (!chiLocTon) return;
+            const idxLocTon = CUNG_CELLS.findIndex(c => c.chi === chiLocTon);
+            if (idxLocTon === -1) return;
+
+            // Lưu Kình Dương: cung ngay sau Lộc Tồn (thuận chiều kim đồng hồ)
+            const idxKinhDuong = (idxLocTon + 1) % 12;
+            const cellKinhDuong = document.querySelector('.cell' + CUNG_CELLS[idxKinhDuong].cell);
+            if (cellKinhDuong) {
+                cellKinhDuong.insertAdjacentHTML('beforeend',
+                    `<div class="sao-luu-kinh-duong" style="position:absolute; left:2px; top:90px; color:#1976d2; font-weight:bold; font-size:0.98em; z-index:4;">
+                L. Kình Dương
+            </div>`);
+            }
+
+            // Lưu Đà La: cung ngay trước Lộc Tồn (ngược chiều kim đồng hồ)
+            const idxDaLa = (idxLocTon + 11) % 12;
+            const cellDaLa = document.querySelector('.cell' + CUNG_CELLS[idxDaLa].cell);
+            if (cellDaLa) {
+                cellDaLa.insertAdjacentHTML('beforeend',
+                    `<div class="sao-luu-da-la" style="position:absolute; left:2px; top:110px; color:#c62828; font-weight:bold; font-size:0.98em; z-index:4;">
+                L. Đà La
+            </div>`);
+            }
+        }
 
 
 
@@ -2312,7 +2360,8 @@
             // An sao lưu Lộc Tồn
             anLuuLocTon(canchiNamXemHan.split(' ')[0]);
 
-
+            // An sao Lưu Kình -Đà
+            anLuuKinhDuongDaLa(canchiNamXemHan.split(' ')[0]);
 
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
