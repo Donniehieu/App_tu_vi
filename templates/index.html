@@ -173,7 +173,7 @@
         let ThienCanNamSinh = "G.";
         let IDCungMenh = 0;
         let cucSo = 0;
-       
+        let IDTieuHan = 0;
         // Tên ác cung từ cung Mệnh thuận chiều kim đồng hồ
         const TEN_CUNG_FULL = [
             "Mệnh", "Phụ Mẫu", "Phúc Đức", "Điền Trạch",
@@ -558,6 +558,7 @@
                             
                             if (chi== chiNam) {
                                 tieuvanArr[cungIdx] = chi + " (T.H)";
+                                IDTieuHan = cungIdx;
                             } else {
                                 tieuvanArr[cungIdx] = chi;
                             }
@@ -1940,6 +1941,45 @@
                 }
             });
         }
+        /**
+* An nguyệt hạn TH1...TH12 lên bàn lá số (chuẩn Bắc phái).
+* @param {number} idxTieuHan - index cung Tiểu hạn (0-11, theo CUNG_CELLS)
+* @param {number} thangSinh - tháng sinh âm lịch (1-12)
+* @param {string} gioSinhChi - chi giờ sinh ("Tý", "Sửu", ..., "Hợi")
+*/
+        function anNguyetHan(idxTieuHan, thangSinh, gioSinhChi) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                let olds = cell.querySelectorAll('.nguyet-han-label');
+                olds.forEach(o => o.remove());
+            });
+
+            // Bước 1: Từ cung tiểu hạn, coi làm tháng 1, đi NGƯỢC chiều kim đồng hồ tới tháng sinh -> idxThang
+            let idxThang = (idxTieuHan - (thangSinh - 1) + 12) % 12;
+
+            // Bước 2: Từ vị trí trên (coi là giờ Tý), đi THUẬN chiều kim đồng hồ tới giờ sinh
+            const GIO12 = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+            let gioIdx = GIO12.indexOf(gioSinhChi);
+            if (gioIdx === -1) gioIdx = 0; // fallback
+            let idxTH1 = (idxThang + gioIdx) % 12;
+
+            // Đặt TH1 tại idxTH1, các tháng tiếp theo thuận chiều kim đồng hồ
+            for (let i = 0; i < 12; ++i) {
+                let idx = (idxTH1 + i) % 12;
+                let cellNum = CUNG_CELLS[idx].cell;
+                let cell = document.querySelector('.cell' + cellNum);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend',
+                        `<div class="nguyet-han-label" style="position:absolute; right:2px; bottom:2px; color:${i === 0 ? '#d32f2f' : '#1976d2'}; font-size:0.98em; font-weight:bold; z-index:4;">
+                    TH${i + 1}
+                </div>`);
+                }
+            }
+        }
+
+
+
+
 
 
 
@@ -1987,7 +2027,7 @@
             const chiThan = thanObj.chi;
             const cellThan = thanObj.cell;
             document.getElementById('cungGop').innerHTML += `<div><b>Cung Thân:</b> ${chiThan}</div>`;
-      
+
 
             // Tính Cục
             const cuc = traCuc(canNam, chiMenh);
@@ -2032,18 +2072,18 @@
                     let old = cell.querySelector('.phu-tinh-label');
                     if (old) old.remove();
                     // Thêm tên các sao phụ tinh (nếu có)
-                    if (saoTrenCungTP[i+1].length > 0) {
+                    if (saoTrenCungTP[i + 1].length > 0) {
                         cell.insertAdjacentHTML('beforeend',
                             `<div class="phu-tinh-label" style="position:absolute;left:0;right:0;top:45px;text-align:center;font-weight:bold;color:#1e88e5;font-size:0.95em;z-index:2;">
-                                ${saoTrenCungTP[i+1].join(', ')}
+                                ${saoTrenCungTP[i + 1].join(', ')}
                             </div>`);
                     }
                 }
             }
-          
-            
+
+
             const lsDaiVan = tinhdaivan(IDCungMenh, cucSo, amduong);
-          
+
             // Xóa thông tin đại vận cũ nếu có
             document.querySelectorAll('.laso-cell').forEach(cell => {
                 let old = cell.querySelector('.daivan-label');
@@ -2061,7 +2101,7 @@
                 }
             }
 
-        
+
             // Ví dụ sử dụng sau khi xác định chiNam, tuoiAm, gioitinh
             const arrTieuvan = tinhTieuvan(chiNam, chiNamXemhan, gioitinh);
 
@@ -2076,6 +2116,13 @@
             </div>`);
                 }
             }
+
+            console.log('idxTieuHan:', IDTieuHan, '->', CUNG_CELLS[IDTieuHan].chi);
+            console.log('idxThang:', am.thang, '->', CUNG_CELLS[am.thang].chi);
+            console.log('gioIdx:', canchi.gio.split(' ')[0], '->', canchi.gio.split(' ')[0]);
+      
+
+            anNguyetHan(IDTieuHan, am.thang, canchi.gio.split(' ')[1]);
 
             // === AN SAO CỐ ĐỊNH: Thiên La – Địa Võng, Thiên Thương – Thiên Sứ ===
     const SAO_CODINH = [
