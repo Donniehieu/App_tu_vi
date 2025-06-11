@@ -1550,6 +1550,206 @@
                 }
             }
         }
+        function anSaoLuuTheoNamXem(chiNamXem) {
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll(`
+            .sao-luu-thai-tue, .sao-luu-bach-ho, .sao-luu-tang-mon,
+            .sao-luu-thien-hu, .sao-luu-thien-khoc, .sao-luu-thien-ma
+        `).forEach(e => e.remove());
+            });
+
+            // 1. Lưu Thái Tuế: năm xem là chi gì thì an tại cung đó
+            const idxLuuThaiTue = CUNG_CELLS.findIndex(c => c.chi === chiNamXem);
+            if (idxLuuThaiTue !== -1) {
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idxLuuThaiTue].cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend', `<div class="sao-luu-thai-tue" ...>L. Thái Tuế</div>`);
+                }
+            }
+
+            // 2. Lưu Bạch Hổ: từ Thân (năm Tý), chạy thuận tới năm xem
+            let idxCungThan = CUNG_CELLS.findIndex(c => c.chi === "Thân");
+            let idxBachHo = (idxCungThan + (CUNG_CELLS.findIndex(c => c.chi === chiNamXem) - idxCungThan + 12) % 12) % 12;
+            if (idxBachHo !== -1) {
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idxBachHo].cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend', `<div class="sao-luu-bach-ho" ...>L. Bạch Hổ</div>`);
+                }
+            }
+
+            // 3. Lưu Tang Môn: từ Dần (năm Tý), chạy thuận tới năm xem
+            let idxCungDan = CUNG_CELLS.findIndex(c => c.chi === "Dần");
+            let idxTangMon = (idxCungDan + (CUNG_CELLS.findIndex(c => c.chi === chiNamXem) - idxCungDan + 12) % 12) % 12;
+            if (idxTangMon !== -1) {
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idxTangMon].cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend', `<div class="sao-luu-tang-mon" ...>L. Tang Môn</div>`);
+                }
+            }
+
+            // 4. Lưu Thiên Hư: từ Ngọ (năm Tý), chạy thuận tới năm xem
+            let idxCungNgo = CUNG_CELLS.findIndex(c => c.chi === "Ngọ");
+            let idxThienHu = (idxCungNgo + (CUNG_CELLS.findIndex(c => c.chi === chiNamXem) - idxCungNgo + 12) % 12) % 12;
+            if (idxThienHu !== -1) {
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idxThienHu].cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend', `<div class="sao-luu-thien-hu" ...>L. Thiên Hư</div>`);
+                }
+            }
+
+            // 5. Lưu Thiên Khốc: từ Ngọ (năm Tý), chạy NGƯỢC tới năm xem
+            let idxThienKhoc = (idxCungNgo - (CUNG_CELLS.findIndex(c => c.chi === chiNamXem) - idxCungNgo + 12) % 12 + 12) % 12;
+            if (idxThienKhoc !== -1) {
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idxThienKhoc].cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend', `<div class="sao-luu-thien-khoc" ...>L. Thiên Khốc</div>`);
+                }
+            }
+
+            // 6. Lưu Thiên Mã: bảng cố định theo chi năm xem
+            let chiThienMa = "";
+            [
+                { list: ["Thân", "Tý", "Thìn"], chi: "Dần" },
+                { list: ["Dần", "Ngọ", "Tuất"], chi: "Thân" },
+                { list: ["Tỵ", "Dậu", "Sửu"], chi: "Hợi" },
+                { list: ["Hợi", "Mão", "Mùi"], chi: "Tỵ" },
+            ].forEach(row => {
+                if (row.list.includes(chiNamXem)) chiThienMa = row.chi;
+            });
+            if (chiThienMa) {
+                const idx = CUNG_CELLS.findIndex(c => c.chi === chiThienMa);
+                if (idx !== -1) {
+                    const cell = document.querySelector('.cell' + CUNG_CELLS[idx].cell);
+                    if (cell) {
+                        cell.insertAdjacentHTML('beforeend', `<div class="sao-luu-thien-ma" ...>L. Thiên Mã</div>`);
+                    }
+                }
+            }
+        }
+        /**
+   * An các sao lưu niên (L. Thái Tuế, L. Bạch Hổ, L. Tang Môn, L. Thiên Hư, L. Thiên Khốc, L. Thiên Mã)
+   * vào đúng cung theo NĂM XEM (chiNamXem).
+   * @param {string} chiNamXem - Địa chi của năm xem hạn ("Tý", "Sửu", ...)
+   */
+        function anSaoLuuTheoNamXem(chiNamXem) {
+            // Xóa nhãn lưu cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll(`
+                .sao-luu-thai-tue, .sao-luu-bach-ho, .sao-luu-tang-mon,
+                .sao-luu-thien-hu, .sao-luu-thien-khoc, .sao-luu-thien-ma
+            `).forEach(e => e.remove());
+            });
+
+            // Helper: lấy vị trí chi trong vòng 12 chi
+            function getIndexChi(chi) {
+                return CHI12.indexOf(chi);
+            }
+
+            // Helper: tìm index cung theo chi
+            function getIndexCungByChi(chi) {
+                return CUNG_CELLS.findIndex(c => c.chi === chi);
+            }
+
+            // 1. Lưu Thái Tuế: An tại cung chi đúng năm xem
+            const idxLuuThaiTue = getIndexCungByChi(chiNamXem);
+            if (idxLuuThaiTue !== -1) {
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idxLuuThaiTue].cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend', `
+                    <div class="sao-luu-thai-tue" style="position:absolute; right:2px; top:180px; color:#d32f2f; font-size:0.97em; font-weight:bold; z-index:3;">
+                        L. Thái Tuế
+                    </div>
+                `);
+                }
+            }
+
+            // Lưu Bạch Hổ: từ Thân (năm Tý), thuận chiều kim đồng hồ đến năm xem
+            const idxCungThan = getIndexCungByChi("Thân");
+            const buocBachHo = (getIndexChi(chiNamXem) - getIndexChi("Tý") + 12) % 12;
+            const idxBachHo = (idxCungThan + buocBachHo) % 12;
+            if (idxBachHo !== -1) {
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idxBachHo].cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend', `
+                    <div class="sao-luu-bach-ho" style="position:absolute; right:2px; top:180px; color:#1976d2; font-size:0.96em; font-weight:bold; z-index:3;">
+                        L. Bạch Hổ
+                    </div>
+                `);
+                }
+            }
+
+            // Lưu Tang Môn: từ Dần (năm Tý), thuận chiều kim đồng hồ đến năm xem
+            const idxCungDan = getIndexCungByChi("Dần");
+            const buocTangMon = (getIndexChi(chiNamXem) - getIndexChi("Tý") + 12) % 12;
+            const idxTangMon = (idxCungDan + buocTangMon) % 12;
+            if (idxTangMon !== -1) {
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idxTangMon].cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend', `
+                    <div class="sao-luu-tang-mon" style="position:absolute; right:2px; top:180px; color:#8d6e63; font-size:0.96em; font-weight:bold; z-index:3;">
+                        L. Tang Môn
+                    </div>
+                `);
+                }
+            }
+
+            // Lưu Thiên Hư: từ Ngọ (năm Tý), thuận chiều kim đồng hồ đến năm xem
+            const idxCungNgo = getIndexCungByChi("Ngọ");
+            const buocThienHu = (getIndexChi(chiNamXem) - getIndexChi("Tý") + 12) % 12;
+            const idxThienHu = (idxCungNgo + buocThienHu) % 12;
+            if (idxThienHu !== -1) {
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idxThienHu].cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend', `
+                    <div class="sao-luu-thien-hu" style="position:absolute; right:2px; top:180px; color:#c62828; font-size:0.96em; font-weight:bold; z-index:3;">
+                        L. Thiên Hư
+                    </div>
+                `);
+                }
+            }
+
+            // Lưu Thiên Khốc: từ Ngọ (năm Tý), NGƯỢC chiều kim đồng hồ đến năm xem
+            const buocThienKhoc = (getIndexChi("Tý") - getIndexChi(chiNamXem) + 12) % 12;
+            const idxThienKhoc = (idxCungNgo + buocThienKhoc) % 12;
+            if (idxThienKhoc !== -1) {
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idxThienKhoc].cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend', `
+                    <div class="sao-luu-thien-khoc" style="position:absolute; right:2px; top:180px; color:#7b1fa2; font-size:0.96em; font-weight:bold; z-index:3;">
+                        L. Thiên Khốc
+                    </div>
+                `);
+                }
+            }
+
+            // Lưu Thiên Mã: bảng cố định theo chi năm xem
+            let chiThienMa = "";
+            [
+                { list: ["Thân", "Tý", "Thìn"], chi: "Dần" },
+                { list: ["Dần", "Ngọ", "Tuất"], chi: "Thân" },
+                { list: ["Tỵ", "Dậu", "Sửu"], chi: "Hợi" },
+                { list: ["Hợi", "Mão", "Mùi"], chi: "Tỵ" },
+            ].forEach(row => {
+                if (row.list.includes(chiNamXem)) chiThienMa = row.chi;
+            });
+            if (chiThienMa) {
+                const idx = getIndexCungByChi(chiThienMa);
+                if (idx !== -1) {
+                    const cell = document.querySelector('.cell' + CUNG_CELLS[idx].cell);
+                    if (cell) {
+                        cell.insertAdjacentHTML('beforeend', `
+                        <div class="sao-luu-thien-ma" style="position:absolute; right:2px; top:180px; color:#0277bd; font-size:0.96em; font-weight:bold; z-index:3;">
+                            L. Thiên Mã
+                        </div>
+                    `);
+                    }
+                }
+            }
+        }
+
+
+
+
 
 
         // hàm thực hiện khi bấm nút
@@ -2071,6 +2271,12 @@
 
             // An Tuần
             anTuan(canNam, chiNam);
+
+            // An sao lưu  theo Năm xem
+            anSaoLuuTheoNamXem(chiNamXemhan);
+           
+
+
 
 
             document.getElementById('cungGop').innerHTML = `
