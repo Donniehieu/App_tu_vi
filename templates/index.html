@@ -1113,6 +1113,44 @@
             </div>`);
             }
         }
+                /**
+         * An sao Đẩu Quân theo quy tắc:
+         * - Sinh năm nào thì từ vị trí cung đó làm tháng 1 (Giả sử chi năm sinh là cung bắt đầu = tháng 1)
+         * - Đi ngược chiều kim đồng hồ tới tháng sinh (âm lịch)
+         * - Từ vị trí đó coi là giờ Tý, đi thuận chiều kim đồng hồ tới giờ sinh (chi)
+         * => Đặt sao Đẩu Quân ở đó
+         * @param {string} chiNam - Chi năm sinh ("Tý",..., "Hợi")
+         * @param {number} thangAm - Tháng sinh âm lịch (1-12)
+         * @param {string} gioChi - Chi giờ sinh ("Tý",..., "Hợi")
+         */
+        function anDauQuan(chiNam, thangAm, gioChi) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-dau-quan').forEach(e => e.remove());
+            });
+
+            // Tìm index xuất phát (năm sinh) trong CUNG_CELLS
+            const idxStart = CUNG_CELLS.findIndex(c => c.chi === chiNam);
+            if (idxStart === -1) return;
+
+            // Đi ngược chiều kim đồng hồ tới tháng sinh âm lịch (tháng 1 là xuất phát, tháng 2 lùi 1, ...)
+            // Vị trí tháng sinh trên bàn
+            let idxThang = (idxStart - (thangAm - 1) + 12) % 12;
+
+            // Từ đó coi là giờ Tý, đi thuận tới giờ sinh
+            const CHI12 = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+            const idxGio = CHI12.indexOf(gioChi);
+            if (idxGio === -1) return;
+
+            let idxDauQuan = (idxThang + idxGio) % 12;
+            const cell = document.querySelector('.cell' + CUNG_CELLS[idxDauQuan].cell);
+            if (cell) {
+                cell.insertAdjacentHTML('beforeend',
+                    `<div class="sao-dau-quan" style="position:absolute; left:2px; top:150px; color:#6d4c41; font-size:0.93em; font-weight:bold; z-index:3;">
+                Đẩu Quân
+            </div>`);
+            }
+        }
 
 
 
@@ -1608,6 +1646,9 @@
 
             // An sao Thiên Tài Thiên Thọ
             anThienTaiThienTho(chiNam, chiMenh, chiThan);
+
+            // An Đẩu Quân
+            anDauQuan(chiNam, am.thang, canchi.gio.split(' ')[1]);
 
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
