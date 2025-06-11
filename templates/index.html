@@ -1746,7 +1746,41 @@
                 }
             }
         }
-
+        /**
+ * Lưu Lộc Tồn: An sao vào cung theo quy tắc từng thiên can năm xem hạn
+ * @param {string} canNamXem - Thiên can năm xem hạn ("G.", "Ấ.", "B.", "Đ.", "M.", "K.", "C.", "T.", "N.", "Q.")
+ */
+        function anLuuLocTon(canNamXem) {
+            // Xoá nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-luu-loc-ton').forEach(e => e.remove());
+            });
+            // Bản đồ đúng quy tắc từng can - cung
+            const CAN_MAP = {
+                "G.": "Dần",    // Giáp
+                "Ấ.": "Mão",    // Ất
+                "B.": "Tỵ",     // Bính
+                "Đ.": "Ngọ",    // Đinh
+                "M.": "Tỵ",     // Mậu
+                "K.": "Ngọ",    // Kỷ
+                "C.": "Thân",   // Canh
+                "T.": "Dậu",    // Tân
+                "N.": "Hợi",    // Nhâm
+                "Q.": "Tý"      // Quý
+            };
+            const chiLocTon = CAN_MAP[canNamXem];
+            if (!chiLocTon) return;
+            const idx = CUNG_CELLS.findIndex(c => c.chi === chiLocTon);
+            if (idx !== -1) {
+                const cell = document.querySelector('.cell' + CUNG_CELLS[idx].cell);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend',
+                        `<div class="sao-luu-loc-ton" style="position:absolute; left:2px; top:70px; color:#009688; font-weight:bold; font-size:1em; z-index:4;">
+                    L. Lộc Tồn
+                </div>`);
+                }
+            }
+        }
 
 
 
@@ -2275,7 +2309,8 @@
             // An sao lưu  theo Năm xem
             anSaoLuuTheoNamXem(chiNamXemhan);
            
-
+            // An sao lưu Lộc Tồn
+            anLuuLocTon(canchiNamXemHan.split(' ')[0]);
 
 
 
