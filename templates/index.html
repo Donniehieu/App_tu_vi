@@ -1214,6 +1214,139 @@
             }
         }
 
+        /**
+* Mapping tứ hóa theo thiên can
+*/
+        const TU_HOA_MAPPING = {
+            "G.": { // Giáp
+                "liemTrinh": "Hóa Lộc",
+                "phaQuan": "Hóa Quyền",
+                "vuKhuc": "Hóa Khoa",
+                "thaiDuong": "Hóa Kỵ"
+            },
+            "Ấ.": { // Ất
+                "thienCo": "Hóa Lộc",
+                "thienLuong": "Hóa Quyền",
+                "tuVi": "Hóa Khoa",
+                "thaiAm": "Hóa Kỵ"
+            },
+            "B.": { // Bính
+                "thienDong": "Hóa Lộc",
+                "thienCo": "Hóa Quyền",
+                "vanXuong": "Hóa Khoa",
+                "liemTrinh": "Hóa Kỵ"
+            },
+            "Đ.": { // Đinh
+                "thaiAm": "Hóa Lộc",
+                "thienDong": "Hóa Quyền",
+                "thienCo": "Hóa Khoa",
+                "cuMon": "Hóa Kỵ"
+            },
+            "M.": { // Mậu
+                "thamLang": "Hóa Lộc",
+                "thaiAm": "Hóa Quyền",
+                "huuBat": "Hóa Khoa",
+                "thienCo": "Hóa Kỵ"
+            },
+            "K.": { // Kỷ
+                "vuKhuc": "Hóa Lộc",
+                "thamLang": "Hóa Quyền",
+                "thienLuong": "Hóa Khoa",
+                "vanKhuc": "Hóa Kỵ"
+            },
+            "C.": { // Canh
+                "thaiDuong": "Hóa Lộc",
+                "vuKhuc": "Hóa Quyền",
+                "thaiAm": "Hóa Khoa",
+                "thienDong": "Hóa Kỵ"
+            },
+            "T.": { // Tân
+                "cuMon": "Hóa Lộc",
+                "thaiDuong": "Hóa Quyền",
+                "vanKhuc": "Hóa Khoa",
+                "vanXuong": "Hóa Kỵ"
+            },
+            "N.": { // Nhâm
+                "thienLuong": "Hóa Lộc",
+                "tuVi": "Hóa Quyền",
+                "taPhu": "Hóa Khoa",
+                "vuKhuc": "Hóa Kỵ"
+            },
+            "Q.": { // Quý
+                "phaQuan": "Hóa Lộc",
+                "cuMon": "Hóa Quyền",
+                "thaiAm": "Hóa Khoa",
+                "thamLang": "Hóa Kỵ"
+            }
+        };
+
+        /**
+         * Tên sao chủ - key dùng trong mapping, value là tên hiển thị
+         */
+        const TEN_SAO_CHU = {
+            "liemTrinh": "Liêm Trinh",
+            "phaQuan": "Phá Quân",
+            "vuKhuc": "Vũ Khúc",
+            "thaiDuong": "Thái Dương",
+            "thienCo": "Thiên Cơ",
+            "thienLuong": "Thiên Lương",
+            "tuVi": "Tử Vi",
+            "thaiAm": "Thái Âm",
+            "thienDong": "Thiên Đồng",
+            "vanXuong": "Văn Xương",
+            "cuMon": "Cự Môn",
+            "thamLang": "Tham Lang",
+            "huuBat": "Hữu Bật",
+            "vanKhuc": "Văn Khúc",
+            "taPhu": "Tả Phụ"
+        };
+
+        /**
+         * Hàm an sao Tứ Hóa theo can năm sinh và vị trí các sao chủ
+         * @param {string} canNam - "G.","Ấ.",...
+         * @param {Object} saoChinhPos - {tenSao: idxCung, ...}; idxCung 1-12 (Dần=1, Mão=2,...)
+         */
+        function anSaoTuHoa(canNam, saoChinhPos) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-tu-hoa').forEach(e => e.remove());
+            });
+
+            const mapping = TU_HOA_MAPPING[canNam];
+            if (!mapping) return;
+
+            // Style màu cho từng hóa
+            const hoaColor = {
+                "Hóa Lộc": "#00a65a",
+                "Hóa Quyền": "#d32f2f",
+                "Hóa Khoa": "#7b1fa2",
+                "Hóa Kỵ": "#333"
+            };
+
+            // Để các nhãn Hóa sát đáy, lệch phải
+            const hoaOffset = {
+                "Hóa Lộc": 42,
+                "Hóa Quyền": 62,
+                "Hóa Khoa": 82,
+                "Hóa Kỵ": 102
+            };
+
+            for (const [keySao, tenHoa] of Object.entries(mapping)) {
+                // Xác định vị trí cung có sao chủ này
+                const idxCung = saoChinhPos[keySao];
+                if (!idxCung) continue; // không tìm thấy vị trí sao này
+
+                // Xác định cellNum trên bàn lá số
+                const cellChi = CUNG_CELLS[(idxCung - 1) % 12].cell;
+                const cell = document.querySelector('.cell' + cellChi);
+                if (cell) {
+                    cell.insertAdjacentHTML('beforeend',
+                        `<div class="sao-tu-hoa" style="position:absolute; right:2px; top:${hoaOffset[tenHoa]}px; color:${hoaColor[tenHoa]}; font-size:1em; font-weight:bold; z-index:99; text-shadow: 1px 1px 2px #fff;">
+                    ${tenHoa}
+                </div>`);
+                }
+            }
+        }
 
 
 
@@ -1714,6 +1847,24 @@
 
             // An vòng Trường Sinh
             anVongTrangSinh(cuc, amduong);
+
+           
+            // An sao tứ Hoá
+            const saoChinhPos = {};
+            // Sao chính tinh từ Tử Vi
+            const posChinh = getChinhTinhFromTuVi(idxTuVi);
+            for (const [k, v] of Object.entries(posChinh)) saoChinhPos[k] = v;
+            // Sao phụ tinh từ Thiên Phủ
+            for (const [k, v] of Object.entries(saoTuThienPhu)) saoChinhPos[k] = v;
+            // Tả Phụ, Hữu Bật (nếu có)
+            if (typeof thangSinhSaoIdx.taPhuIdx === 'number') saoChinhPos["taPhu"] = thangSinhSaoIdx.taPhuIdx + 1;
+            if (typeof thangSinhSaoIdx.huuBatIdx === 'number') saoChinhPos["huuBat"] = thangSinhSaoIdx.huuBatIdx + 1;
+            // Văn Xương, Văn Khúc (nếu có)
+            if (typeof gioSinhSaoIdx.vanXuongIdx === 'number') saoChinhPos["vanXuong"] = gioSinhSaoIdx.vanXuongIdx + 1;
+            if (typeof gioSinhSaoIdx.vanKhucIdx === 'number') saoChinhPos["vanKhuc"] = gioSinhSaoIdx.vanKhucIdx + 1;
+
+            anSaoTuHoa(canNam, saoChinhPos);
+
 
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
