@@ -1830,7 +1830,116 @@
             }
         }
 
+        /**
+ * An sao Lưu Tứ Hóa (Lưu Hóa Lộc, Quyền, Khoa, Kỵ) theo thiên can NĂM XEM HẠN,
+ * và vị trí các sao chủ trên lá số. Một cung có thể có nhiều sao Lưu Tứ Hóa nếu tại đó có nhiều sao chủ phù hợp.
+ * @param {string} canNamXem - thiên can năm xem hạn ("G.", "Ấ.", ...)
+ * @param {Object} cuCungSao - ánh xạ {Tên Sao: idxCung} (index cung 0...11, theo CUNG_CELLS)
+ */
+        function anSaoLuuTuHoa(canNamXem, cuCungSao) {
+            // Xóa nhãn cũ
+            document.querySelectorAll('.laso-cell').forEach(cell => {
+                cell.querySelectorAll('.sao-luu-hoa-loc, .sao-luu-hoa-quyen, .sao-luu-hoa-khoa, .sao-luu-hoa-ky').forEach(e => e.remove());
+            });
 
+            // Bảng quy tắc tứ hóa theo CAN NĂM XEM HẠN (KHÔNG phải năm sinh)
+            const RULES = {
+                "G.": [
+                    { sao: "Liêm Trinh", hoa: "Hóa Lộc" },
+                    { sao: "Phá Quân", hoa: "Hóa Quyền" },
+                    { sao: "Vũ Khúc", hoa: "Hóa Khoa" },
+                    { sao: "Thái Dương", hoa: "Hóa Kỵ" }
+                ],
+                "Ấ.": [
+                    { sao: "Thiên Cơ", hoa: "Hóa Lộc" },
+                    { sao: "Thiên Lương", hoa: "Hóa Quyền" },
+                    { sao: "Tử Vi", hoa: "Hóa Khoa" },
+                    { sao: "Thái Âm", hoa: "Hóa Kỵ" }
+                ],
+                "B.": [
+                    { sao: "Thiên Đồng", hoa: "Hóa Lộc" },
+                    { sao: "Thiên Cơ", hoa: "Hóa Quyền" },
+                    { sao: "Văn Xương", hoa: "Hóa Khoa" },
+                    { sao: "Liêm Trinh", hoa: "Hóa Kỵ" }
+                ],
+                "Đ.": [
+                    { sao: "Thái Âm", hoa: "Hóa Lộc" },
+                    { sao: "Thiên Đồng", hoa: "Hóa Quyền" },
+                    { sao: "Thiên Cơ", hoa: "Hóa Khoa" },
+                    { sao: "Cự Môn", hoa: "Hóa Kỵ" }
+                ],
+                "M.": [
+                    { sao: "Tham Lang", hoa: "Hóa Lộc" },
+                    { sao: "Thái Âm", hoa: "Hóa Quyền" },
+                    { sao: "Hữu Bật", hoa: "Hóa Khoa" },
+                    { sao: "Thiên Cơ", hoa: "Hóa Kỵ" }
+                ],
+                "K.": [
+                    { sao: "Vũ Khúc", hoa: "Hóa Lộc" },
+                    { sao: "Tham Lang", hoa: "Hóa Quyền" },
+                    { sao: "Thiên Lương", hoa: "Hóa Khoa" },
+                    { sao: "Văn Khúc", hoa: "Hóa Kỵ" }
+                ],
+                "C.": [
+                    { sao: "Thái Dương", hoa: "Hóa Lộc" },
+                    { sao: "Vũ Khúc", hoa: "Hóa Quyền" },
+                    { sao: "Thái Âm", hoa: "Hóa Khoa" },
+                    { sao: "Thiên Đồng", hoa: "Hóa Kỵ" }
+                ],
+                "T.": [
+                    { sao: "Cự Môn", hoa: "Hóa Lộc" },
+                    { sao: "Thái Dương", hoa: "Hóa Quyền" },
+                    { sao: "Văn Khúc", hoa: "Hóa Khoa" },
+                    { sao: "Văn Xương", hoa: "Hóa Kỵ" }
+                ],
+                "N.": [
+                    { sao: "Thiên Lương", hoa: "Hóa Lộc" },
+                    { sao: "Tử Vi", hoa: "Hóa Quyền" },
+                    { sao: "Tả Phụ", hoa: "Hóa Khoa" },
+                    { sao: "Vũ Khúc", hoa: "Hóa Kỵ" }
+                ],
+                "Q.": [
+                    { sao: "Phá Quân", hoa: "Hóa Lộc" },
+                    { sao: "Cự Môn", hoa: "Hóa Quyền" },
+                    { sao: "Thái Âm", hoa: "Hóa Khoa" },
+                    { sao: "Tham Lang", hoa: "Hóa Kỵ" }
+                ]
+            };
+
+            const hoaClassMap = {
+                "Hóa Lộc": "sao-luu-hoa-loc",
+                "Hóa Quyền": "sao-luu-hoa-quyen",
+                "Hóa Khoa": "sao-luu-hoa-khoa",
+                "Hóa Kỵ": "sao-luu-hoa-ky"
+            };
+            const hoaColorMap = {
+                "Hóa Lộc": "#43a047",
+                "Hóa Quyền": "#1976d2",
+                "Hóa Khoa": "#be0e8c",
+                "Hóa Kỵ": "#d84315"
+            };
+            const hoaTopMap = {
+                "Hóa Lộc": 120,
+                "Hóa Quyền": 140,
+                "Hóa Khoa": 160,
+                "Hóa Kỵ": 180
+            };
+
+            if (!RULES[canNamXem]) return;
+
+            RULES[canNamXem].forEach(rule => {
+                const idxCung = cuCungSao[rule.sao];
+                if (typeof idxCung !== "undefined") {
+                    const cell = document.querySelector('.cell' + CUNG_CELLS[idxCung].cell);
+                    if (cell) {
+                        cell.insertAdjacentHTML('beforeend',
+                            `<div class="${hoaClassMap[rule.hoa]}" style="position:absolute; right:2px; top:${hoaTopMap[rule.hoa]}px; color:${hoaColorMap[rule.hoa]}; font-weight:bold; font-size:1em; z-index:5;">
+                        L. ${rule.hoa}
+                    </div>`);
+                    }
+                }
+            });
+        }
 
 
 
@@ -2335,6 +2444,7 @@
             // An sao tứ Hoá
             const saoChinhPos = {};
             // Sao chính tinh từ Tử Vi
+         
             const posChinh = getChinhTinhFromTuVi(idxTuVi);
             for (const [k, v] of Object.entries(posChinh)) saoChinhPos[k] = v;
             // Sao phụ tinh từ Thiên Phủ
@@ -2362,6 +2472,39 @@
 
             // An sao Lưu Kình -Đà
             anLuuKinhDuongDaLa(canchiNamXemHan.split(' ')[0]);
+
+            // An sao lưu tứ hoá
+            const cuCungSao = {};
+            // Sao chính tinh
+           
+            cuCungSao["Tử Vi"] = posChinh.tuVi - 1;
+            cuCungSao["Thiên Cơ"] = posChinh.thienCo - 1;
+            cuCungSao["Thái Dương"] = posChinh.thaiDuong - 1;
+            cuCungSao["Vũ Khúc"] = posChinh.vuKhuc - 1;
+            cuCungSao["Thiên Đồng"] = posChinh.thienDong - 1;
+            cuCungSao["Liêm Trinh"] = posChinh.liemTrinh - 1;
+            // Sao phụ tinh
+            const phuTinhMap = {
+                thienPhu: "Thiên Phủ",
+                thaiAm: "Thái Âm",
+                thamLang: "Tham Lang",
+                cuMon: "Cự Môn",
+                thienTuong: "Thiên Tướng",
+                thienLuong: "Thiên Lương",
+                thatSat: "Thất Sát",
+                phaQuan: "Phá Quân"
+            };
+            for (const [k, v] of Object.entries(saoTuThienPhu)) {
+                if (phuTinhMap[k]) cuCungSao[phuTinhMap[k]] = v - 1;
+            }
+            // Tả Phụ, Hữu Bật, Văn Xương, Văn Khúc, ...
+            if (typeof idx_taPhu === "number") cuCungSao["Tả Phụ"] = idx_taPhu;
+            if (typeof idx_huuBat === "number") cuCungSao["Hữu Bật"] = idx_huuBat;
+            if (typeof idx_vanXuong === "number") cuCungSao["Văn Xương"] = idx_vanXuong;
+            if (typeof idx_vanKhuc === "number") cuCungSao["Văn Khúc"] = idx_vanKhuc;
+
+            // Gọi hàm an sao lưu tứ hóa
+            anSaoLuuTuHoa(canchiNamXemHan.split(' ')[0], cuCungSao);
 
             document.getElementById('cungGop').innerHTML = `
                         <div><b>Người xem hạn:</b> ${hoten}</div>
