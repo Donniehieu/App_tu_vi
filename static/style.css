@@ -178,9 +178,7 @@
     flex-direction: column; /* Tự động xuống dòng khi có nhiều phụ tinh */
     width: 100%; /* Chiếm toàn bộ chiều rộng của ô */
     position: absolute;
-    font-size: 1rem; /* Nếu .ten-cung là 2em thì 2/3 là ~1.33em */
-
-    top: calc(2rem + 2.7rem); /* Đặt dưới chính tinh */
+    font-size: 1em; /* Nếu .ten-cung là 2em thì 2/3 là ~1.33em */
     gap: 1em;
     font-family: Arial, sans-serif !important;
 }
@@ -192,12 +190,11 @@
 }
 .tu-hoa {
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 1em;
     display: flex;
     flex-direction: column; /* Tự động dãn xuống nếu nhiều tứ hóa cùng cung */
     gap: 0.2em; /* Khoảng cách giữa các tứ hóa */
-    position: absolute; /* Đặt vị trí tuyệt đối nếu cần */
-    top: calc(2em + 2.5em); /* Đặt dưới chính tinh */
+    /* Đặt vị trí tuyệt đối nếu cần */
     z-index: 2;
     font-family: Arial, sans-serif !important;
 }
@@ -221,9 +218,9 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    top: calc(1.5rem);
+    top: calc(2em + 2.7em);
     margin-bottom: 2px;
-    position: absolute;
+    position: static;
     font-weight: normal;
     font-family: Arial, sans-serif !important;
     align-items: flex-end;
