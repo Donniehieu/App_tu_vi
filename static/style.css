@@ -56,8 +56,7 @@
     justify-content: flex-start;
     padding: 6px;
     font-size: 0.97rem;
-    min-width: 0;
-    min-height: 0;
+  
     background: #fffded;
     position: relative;
     box-sizing: border-box;
@@ -82,6 +81,7 @@
 /* Ngũ hành: Kim, Mộc, Thủy, Hỏa, Thổ */
 .hanh-kim {
     color: #808080;
+
 }
 
 .hanh-moc {
@@ -107,7 +107,7 @@
     left: 50%; /* Dịch sang giữa theo chiều ngang */
     transform: translateX(-50%); /* Căn giữa chính xác */
     font-weight: bold; /* Bôi đậm */
-    font-size: 1em; /* Kích cỡ chữ tương đối (có thể điều chỉnh) */
+    font-size: 1rem; /* Kích cỡ chữ tương đối (có thể điều chỉnh) */
     text-align: center; /* Căn giữa văn bản */
     font-family: Arial, sans-serif !important;
 }
@@ -116,7 +116,7 @@
     font-weight: bold;
     top: 0;
     left: 0;
-    font-size: 0.8em; /* Kích cỡ chữ tương đối, sẽ điều chỉnh bên dưới */
+    font-size: 0.8rem; /* Kích cỡ chữ tương đối, sẽ điều chỉnh bên dưới */
    
     text-align: left; /* Căn trái */
     font-family: Arial, sans-serif !important;
@@ -130,7 +130,7 @@
     top: 0;
     right: 0;
     font-weight: bold; /* Bôi đậm */
-    font-size: 0.8em; /* Nếu .ten-cung là 2em thì .dai-van là 1em */
+    font-size: 0.8rem; /* Nếu .ten-cung là 2em thì .dai-van là 1em */
     text-align: right; /* Căn phải */
     font-family: Arial, sans-serif !important;
 }
@@ -138,7 +138,7 @@
     position: absolute;
     bottom: 2px;
     left: 1px;
-    font-size: 0.8em; /* Nếu .ten-cung là 2em thì .tieu-han là 1em */
+    font-size: 0.8rem; /* Nếu .ten-cung là 2em thì .tieu-han là 1em */
     font-weight: normal; /* Không bôi đậm */
     color: #000; /* Chữ màu đen */
     text-align: left; /* Căn trái */
@@ -148,7 +148,7 @@
     position: absolute;
     bottom: 2px;
     right: 1px;
-    font-size: 0.8em; /* Nếu .ten-cung là 2em thì .nguyet-han là 1em */
+    font-size: 0.8rem; /* Nếu .ten-cung là 2em thì .nguyet-han là 1em */
     font-weight: normal; /* Không bôi đậm */
     color: #000; /* Chữ màu đen */
     text-align: right; /* Căn phải */
@@ -159,73 +159,40 @@
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 1em; /* Nếu .ten-cung là 2em thì .vong-truong-sinh là 1em */
+    font-size: 1rem; /* Nếu .ten-cung là 2em thì .vong-truong-sinh là 1em */
     font-weight: bold; /* Tô đậm */
     color: #000; /* Màu đen */
     text-align: center; /* Căn giữa nội dung */
     font-family: Arial, sans-serif !important;
 }
-.chinh-tinh {
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Căn giữa ngang */
-    align-items: flex-start;
-    gap: 0.5em; /* Tự động dãn giữa các chính tinh nếu có 2 sao */
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: calc(2em); /* Đứng ngay dưới tên cung (nếu .ten-cung là 2em) */
-    font-size: 1em; /* 1.2 lần tên cung (nếu .ten-cung là 2em) */
-    font-weight: bold; /* Chữ đậm */
-    width: max-content;
-    z-index: 2; /* Đảm bảo chính tinh nổi lên trên */
-    font-family: Arial, sans-serif !important;
-}
 
-    /* Nếu muốn từng sao là 1 phần tử con: */
-    .chinh-tinh > span {
-        margin: 0 0.25em;
-    }
+
+
+
 .sao-tot {
-    font-weight: normal;
-    position: absolute;
-    display: flex;
-    flex-direction: column; /* Tự động xuống dòng nếu có nhiều sao xấu */
-    align-items: flex-end; /* Căn phải */
-    gap: 0.1em; /* Khoảng cách giữa các sao xấu */
-    left: 0;
-    font-size: 1em; /* Có thể điều chỉnh tùy ý */
-    top: calc(2em + 2.5em); /* Đặt dưới chính tinh (tùy chỉnh theo layout) */
-
-    text-align: left;
-    font-family: Arial, sans-serif !important;
+    left: 0%;
+    align-items: flex-start;
 }
 .phu-tinh {
-    font-size: 1em; /* Nếu .ten-cung là 2em thì 2/3 là ~1.33em */
     display: flex;
     flex-direction: column; /* Tự động xuống dòng khi có nhiều phụ tinh */
-    top: calc(2em + 2.5em); /* Đặt dưới chính tinh */
-    gap: 0.1em;
+    width: 100%; /* Chiếm toàn bộ chiều rộng của ô */
+    position: absolute;
+    font-size: 1rem; /* Nếu .ten-cung là 2em thì 2/3 là ~1.33em */
+
+    top: calc(2rem + 2.7rem); /* Đặt dưới chính tinh */
+    gap: 1em;
+    font-family: Arial, sans-serif !important;
 }
 
 /* Mỗi phụ tinh nên là 1 phần tử con, ví dụ như <span> hoặc <div> */
 .sao-xau {
-    font-weight: normal; /* Không bôi đậm */
-    font-size: 1em; /* 2em * 2/3 ≈ 1.33em */
-    display: flex;
-    flex-direction: column; /* Tự động xuống dòng nếu có nhiều sao xấu */
-    text-align: right; /* Căn phải nội dung */
-    align-items: flex-end; /* Đảm bảo phần tử con cũng bám phải */
-    gap: 0.1em; /* Khoảng cách giữa các sao xấu */
-    position: absolute;
-    right: 0;
-    top: calc(2em + 2.5em); /* Đặt dưới chính tinh */
-    z-index: 1;
-    font-family: Arial, sans-serif !important;
+    right: 0%;
+    align-items: flex-end;
 }
 .tu-hoa {
     font-weight: bold;
-    font-size: 1em;
+    font-size: 1rem;
     display: flex;
     flex-direction: column; /* Tự động dãn xuống nếu nhiều tứ hóa cùng cung */
     gap: 0.2em; /* Khoảng cách giữa các tứ hóa */
@@ -234,4 +201,33 @@
     z-index: 2;
     font-family: Arial, sans-serif !important;
 }
+.chinh-tinh-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    top: calc(1.5rem);
+    margin-bottom: 2px;
+    position: absolute;
+    justify-content: center; /* Căn giữa ngang */
+    align-items: flex-start;
+    font-weight: bold;
+    font-family: Arial, sans-serif !important;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+
+.phu-tinh-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    top: calc(1.5rem);
+    margin-bottom: 2px;
+    position: absolute;
+    font-weight: normal;
+    font-family: Arial, sans-serif !important;
+    align-items: flex-end;
+}
+
+
 
