@@ -109,6 +109,7 @@
     <script>
         let ThienCanNamSinh = "G.";
         let IDCungMenh = 0;
+        let IDCungThan = 0;
         let cucSo = 0;
         let IDTieuHan = 0;
         // Tên ác cung từ cung Mệnh thuận chiều kim đồng hồ
@@ -221,7 +222,7 @@
             let menhIdx = (thangIdx - gioIdx + 12) % 12;
             IDCungMenh = menhIdx;
             let obj = CUNG_CELLS[menhIdx];
-            hienThiTenCungLaso(menhIdx); // Hiển thị tên cung trên bàn lá số
+            
             return obj; // {cell: xx, chi: "..."}
         }
 
@@ -330,10 +331,14 @@
             "Tuất": "hanh-tho",
             "Hợi": "hanh-thuy"
         };
-        function hienThiTenCungLaso(menhIdx, highlightTuViIdx = null) {
+        function hienThiTenCungLaso(menhIdx, idCungThan = null, highlightTuViIdx = null) {
             for (let i = 0; i < 12; ++i) {
                 let cc = CUNG_CELLS[(menhIdx + i) % 12];
                 let tenCung = TEN_CUNG_FULL[i];
+                // Nếu đúng cung Thân, thì thêm (Thân)
+                if (cc.cell === idCungThan) {
+                    tenCung += " <span class='than-label'>(Thân)</span>";
+                }
                 let cell = document.querySelector('.cell' + cc.cell);
                 let can = getCanThang12Cung(ThienCanNamSinh)[(menhIdx + i) % 12];
                 let chi = cc.chi;
@@ -346,7 +351,6 @@
                 <div class="chi-cung ${hanhClass}">
                     ${can} ${chi}
                 </div>
-               
             `;
                 }
             }
@@ -399,6 +403,7 @@
             let thangIdx = (thang_am - 1) % 12;
             let gioIdx = CHI12.indexOf(gio_chi);
             let thanIdx = (thangIdx + gioIdx) % 12;
+            IDCungThan = thanIdx;
             let obj = CUNG_CELLS[thanIdx];
             return obj;
         }
@@ -900,13 +905,6 @@
             let found = nhom.find(g => g.list.includes(chiNam));
             if (!found) return;
 
-            // Bảng hành cho Thiên Mã theo cung
-            const HANH_THIEN_MA = {
-                "Dần": "moc",
-                "Tỵ": "hoa",
-                "Thân": "kim",
-                "Hợi": "thuy"
-            };
 
             // Map hành sang class màu
             const HANH_MAU = {
@@ -922,7 +920,8 @@
                 { ten: "Hoa Cái", chi: found.hoacai, className: "sao-hoa-cai", loai: "tot", hanh: "kim" },
                 { ten: "Đào Hoa", chi: found.daohoa, className: "sao-dao-hoa", loai: "tot", hanh: "moc" },
                 // Thiên Mã sẽ xử lý hành riêng bên dưới
-                { ten: "Kiếp Sát", chi: found.kiepsat, className: "sao-kiep-sat", loai: "xau", hanh: "hoa" }
+                { ten: "Kiếp Sát", chi: found.kiepsat, className: "sao-kiep-sat", loai: "xau", hanh: "hoa" },
+                 { ten: "Thiên Mã", chi: found.thienma, className: "sao-thien-ma", loai: "tot", hanh: "hoa" }
             ];
 
             saoList.forEach(sao => {
@@ -940,20 +939,8 @@
                 }
             });
 
-            // Xử lý riêng cho Thiên Mã (tốt, hành theo cung nó đóng)
-            const idxThienMa = CUNG_CELLS.findIndex(c => c.chi === found.thienma);
-            if (idxThienMa !== -1) {
-                const cell = document.querySelector('.cell' + CUNG_CELLS[idxThienMa].cell);
-                if (cell) {
-                    // Hành của Thiên Mã theo cung nó đóng
-                    const hanhThienMa = HANH_THIEN_MA[found.thienma] || "";
-                    let hanhClass = HANH_MAU[hanhThienMa] || "";
-                    cell.insertAdjacentHTML('beforeend',
-                        `<div class="sao-thien-ma sao-tot ${hanhClass} phu-tinh" >
-                    Thiên Mã
-                </div>`);
-                }
-            }
+           
+            
         }
 
         function anHongLoanThienHyPhuongCacGiaiThan(chiNam) {
@@ -1523,7 +1510,7 @@
                 const cell = document.querySelector('.cell' + CUNG_CELLS[idxLuuThaiTue].cell);
                 if (cell) {
                     cell.insertAdjacentHTML('beforeend', `
-                        <div class="sao-luu-thai-tue sao-xau">
+                        <div class="sao-luu-thai-tue sao-xau hanh-hoa">
                             L. Thái Tuế
                         </div>
                     `);
@@ -1605,7 +1592,7 @@
                     const cell = document.querySelector('.cell' + CUNG_CELLS[idx].cell);
                     if (cell) {
                         cell.insertAdjacentHTML('beforeend', `
-                            <div class="sao-luu-thien-ma sao-tot">
+                            <div class="sao-luu-thien-ma sao-tot hanh-hoa">
                                 L. Thiên Mã
                             </div>
                         `);
@@ -1865,7 +1852,7 @@
             const cellThan = thanObj.cell;
             document.getElementById('cungGop').innerHTML += `<div><b>Cung Thân:</b> ${chiThan}</div>`;
 
-
+            hienThiTenCungLaso(IDCungMenh, cellThan);
             // Tính Cục
             const cuc = traCuc(canNam, chiMenh);
             // An đại vận
@@ -2259,7 +2246,7 @@
                     let cell = document.querySelector('.cell' + cellNum);
                     if (cell) {
                         cell.insertAdjacentHTML('beforeend',
-                            `<div class="sao-tam-thai sao-tot hanh-kim phu-tinh">
+                            `<div class="sao-tam-thai sao-tot hanh-thuy phu-tinh">
                     Tam Thai
                 </div>`);
                     }
