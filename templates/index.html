@@ -112,6 +112,7 @@
         let IDCungThan = 0;
         let cucSo = 0;
         let IDTieuHan = 0;
+        let cungCu = "";
         // Tên ác cung từ cung Mệnh thuận chiều kim đồng hồ
         const TEN_CUNG_FULL = [
             "Mệnh", "Phụ Mẫu", "Phúc Đức", "Điền Trạch",
@@ -332,11 +333,13 @@
             "Hợi": "hanh-thuy"
         };
         function hienThiTenCungLaso(menhIdx, idCungThan = null, highlightTuViIdx = null) {
+            console.log (gioitinh);
             for (let i = 0; i < 12; ++i) {
                 let cc = CUNG_CELLS[(menhIdx + i) % 12];
-                let tenCung = TEN_CUNG_FULL[i];
+                tenCung = TEN_CUNG_FULL[i];
                 // Nếu đúng cung Thân, thì thêm (Thân)
                 if (cc.cell === idCungThan) {
+                    cungCu = tenCung;
                     tenCung += " <span class='than-label'>(Thân)</span>";
                 }
                 let cell = document.querySelector('.cell' + cc.cell);
@@ -2484,7 +2487,84 @@
                 });
             }
             arrangeGoodBadStarsInCells();
+            function layNguHanhMenh60(menh60hoagiap) {
+                if (!menh60hoagiap) return "";
+                const arr = menh60hoagiap.trim().split(" ");
+                return arr[arr.length - 1];
+            }
 
+            function layNguHanhCuc(cuc) {
+                if (!cuc) return "";
+                return cuc.trim().split(" ")[0];
+            }
+            const NGU_HANH_SINH = {
+                "Mộc": "Hỏa",
+                "Hỏa": "Thổ",
+                "Thổ": "Kim",
+                "Kim": "Thủy",
+                "Thủy": "Mộc"
+            };
+
+            const NGU_HANH_KHAC = {
+                "Mộc": "Thổ",
+                "Thổ": "Thủy",
+                "Thủy": "Hỏa",
+                "Hỏa": "Kim",
+                "Kim": "Mộc"
+            };
+
+            /**
+             * Hàm xét 4 hướng sinh khắc giữa mệnh và cục
+             * @param {string} hanhMenh - Ngũ hành mệnh (ví dụ: "Kim")
+             * @param {string} hanhCuc - Ngũ hành cục (ví dụ: "Thủy")
+             * @returns {object} - Kết quả 4 hướng: menh_sinh_cuc, menh_khac_cuc, cuc_sinh_menh, cuc_khac_menh
+             */
+            function xetSinhKhacNguHanh(hanhMenh, hanhCuc) {
+                return {
+                    menh_sinh_cuc: (NGU_HANH_SINH[hanhMenh] === hanhCuc) ? "Có" : "Không",
+                    menh_khac_cuc: (NGU_HANH_KHAC[hanhMenh] === hanhCuc) ? "Có" : "Không",
+                    cuc_sinh_menh: (NGU_HANH_SINH[hanhCuc] === hanhMenh) ? "Có" : "Không",
+                    cuc_khac_menh: (NGU_HANH_KHAC[hanhCuc] === hanhMenh) ? "Có" : "Không",
+                };
+            }
+
+            // Chỉ hiện những hướng có
+            function hienHuongCo(result) {
+                const mapping = {
+                    menh_sinh_cuc: "Mệnh sinh Cục",
+                    menh_khac_cuc: "Mệnh khắc Cục",
+                    cuc_sinh_menh: "Cục sinh Mệnh",
+                    cuc_khac_menh: "Cục khắc Mệnh"
+                };
+                return Object.entries(result)
+                    .filter(([_, value]) => value === "Có")
+                    .map(([key]) => mapping[key]);
+            }
+
+            const hanhMenh = layNguHanhMenh60(menh);
+            const hanhCuc = layNguHanhCuc(cuc);
+            const kqSinhKhac = xetSinhKhacNguHanh(hanhMenh, hanhCuc);
+            const Quan_he_cucmenh = hienHuongCo(kqSinhKhac);
+            function amDuongThuanNghichLy(namSinh, menhChi) {
+                // 1. Xác định tuổi âm/dương
+                const soCuoi = namSinh % 10;
+                const laTuoiAm = soCuoi % 2 === 1; // Lẻ: tuổi âm
+                // 2. Xác định cung mệnh âm/dương
+                const cungDuong = ["Tý", "Dần", "Thìn", "Ngọ", "Thân", "Tuất"];
+                const laMenhDuong = cungDuong.includes(menhChi); // true: dương, false: âm
+                // 3. Thuận/Nghịch lý
+                if ((laTuoiAm && !laMenhDuong) || (!laTuoiAm && laMenhDuong)) {
+                    return "Âm Dương Thuận lý";
+                } else {
+                    return "Âm Dương Nghịch lý";
+                }
+            }
+            function soCuoiNamSinh(namSinh) {
+                return namSinh % 10;
+            }
+            namtuoi = soCuoiNamSinh(am.nam);
+            const am_duong_tinh_chat = amDuongThuanNghichLy(namtuoi, chiMenh);
+           
             document.getElementById('cungGop').innerHTML = `
                             <div><b>Người xem hạn:</b> ${hoten}</div>
                             <div><b>Năm xem hạn:</b> ${namxemhan} (${canchiNamXemHan})</div>
@@ -2502,6 +2582,11 @@
                             <div><b>Cục:</b> ${cuc}</div>
                             <div><b>Cung Mệnh:</b> ${chiMenh} </div>
                             <div><b>Cung Thân:</b> ${chiThan}</div>
+
+                            <div><b></b> ${Quan_he_cucmenh}</div>
+                            <div><b></b> Thân cư ${cungCu}</div>
+                             <div><b></b> ${am_duong_tinh_chat}</div>
+
                         `;
             document.getElementById('form-row').classList.add('d-none');
             document.getElementById('laso-row').classList.remove('d-none');

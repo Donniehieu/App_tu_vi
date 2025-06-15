@@ -110,6 +110,7 @@
     font-size: 1rem; /* Kích cỡ chữ tương đối (có thể điều chỉnh) */
     text-align: center; /* Căn giữa văn bản */
     font-family: Arial, sans-serif !important;
+    width : max-content;
 }
 .chi-cung {
     position: absolute;
