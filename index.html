@@ -240,6 +240,9 @@
             year = parseInt(year);
             return (year % 400 === 0) || (year % 4 === 0 && year % 100 !== 0);
         }
+        function scalePage() {
+            document.body.classList.add('scaled');
+        }
 
         function getMaxDay(month, year) {
             month = parseInt(month);
@@ -369,7 +372,7 @@
         const namInput = document.getElementById('nam');
         const btnTuvi = document.getElementById('btn_xemtuvi');
         const amlichDiv = document.getElementById('amlich');
-
+    
         function validateDateInput() {
             const day = parseInt(ngayInput.value);
             const month = parseInt(thangInput.value);
@@ -873,7 +876,7 @@
             }
             // Gợi ý: nếu muốn an thêm "Thiên Khốc" (xấu, hành kim) ở vị trí đặc biệt, xử lý ở đây.
         }
-  
+      
         function anSaoThienKhoc(chiNam) {
             // Xóa nhãn cũ nếu có
             document.querySelectorAll('.laso-cell').forEach(cell => {
@@ -1819,6 +1822,7 @@
         // hàm thực hiện khi bấm nút
         document.getElementById('form_tuvi').addEventListener('submit', function (e) {
             e.preventDefault();
+           
             const hoten = document.getElementById('hoten').value.trim();
             const ngay = parseInt(document.getElementById('ngay').value);
             const thang = parseInt(document.getElementById('thang').value);
@@ -1965,10 +1969,6 @@
                 </div>`);
                 }
             }
-
-           
-
-
             anNguyetHan(IDTieuHan, am.thang, canchi.gio.split(' ')[1]);
 
             // === AN SAO CỐ ĐỊNH: Thiên La – Địa Võng, Thiên Thương – Thiên Sứ ===
@@ -2020,7 +2020,7 @@
                         if (cell) {
                             let hanhClass = HANH_MAU_CODINH[sao.hanh] || "";
                             cell.insertAdjacentHTML('beforeend',
-                                `<div class="sao-codinh-label sao-xau ${hanhClass} ">
+                                `<div class="sao-codinh-label sao-xau ${hanhClass}  ">
                         ${sao.ten}
                     </div>`);
                         }
@@ -2486,7 +2486,7 @@
                         starDiv.style.position = "absolute";
                         starDiv.style.right = "8px"; // cách lề phải 8px
                         starDiv.style.top = (baseTop + idx * 18) + "px";
-                        starDiv.style.width = "44%";
+                        starDiv.style.width = "max-content"
                         starDiv.style.textAlign = "right";
                         starDiv.style.zIndex = 2;
                     });
@@ -2654,6 +2654,7 @@
             }
             console.log(chiNam, am.thang, am.ngay, chiGio, gioitinh);
             phamgio_kim_xa_thiet_toa = checkGioKimXaThietToa(chiNam, am.thang, am.ngay, chiGio, gioitinh);
+          
             document.getElementById('cungGop').innerHTML = `
                             <div><b>Người xem hạn:</b> ${hoten}</div>
                             <div><b>Năm xem hạn:</b> ${namxemhan} (${canchiNamXemHan})</div>
@@ -2685,8 +2686,8 @@
             document.getElementById('laso-row').classList.remove('d-none');
 
         });
-
-        
+       
+      
 
     </script>
 
