@@ -2231,7 +2231,7 @@
                     let cell = document.querySelector('.cell' + cellNum);
                     if (cell) {
                         let count = cell.querySelectorAll('.sao-linh-tinh').length;
-                        let baseTop = 148, offset = 18, top = baseTop + count * offset;
+                        let baseTop = 130, offset = 18, top = baseTop + count * offset;
                         cell.insertAdjacentHTML('beforeend',
                             `<div class="sao-linh-tinh sao-xau hanh-hoa phu-tinh">
                     Linh Tinh
@@ -2417,8 +2417,6 @@
                         phuList.forEach(e => {
                             e.style.display = 'block';
                             e.style.width = '100%';
-                            
-                           
                             group.appendChild(e);
                         });
                     }
@@ -2484,7 +2482,7 @@
                     const saoXauList = Array.from(cell.querySelectorAll('.sao-xau'));
                     saoXauList.forEach((starDiv, idx) => {
                         starDiv.style.position = "absolute";
-                        starDiv.style.right = "8px"; // cách lề phải 8px
+                        starDiv.style.right = "4px"; // cách lề phải 8px
                         starDiv.style.top = (baseTop + idx * 18) + "px";
                         starDiv.style.width = "max-content"
                         starDiv.style.textAlign = "right";
@@ -2656,24 +2654,21 @@
             phamgio_kim_xa_thiet_toa = checkGioKimXaThietToa(chiNam, am.thang, am.ngay, chiGio, gioitinh);
           
             document.getElementById('cungGop').innerHTML = `
-                            <div><b>Người xem hạn:</b> ${hoten}</div>
+                            <div><b>Người xem hạn:</b> ${hoten} </div>
+                            <div><b>Giới tính :</b> ${gioitinh} </div>
                             <div><b>Năm xem hạn:</b> ${namxemhan} (${canchiNamXemHan})</div>
+                            <div><b>Sinh âm lịch:</b> ${am.ngay}/${am.thang}${am.nhuan ? ' (Nhuận)' : ''}/${am.nam}</div>
+                            <div><b>Năm sinh: ${canchi.nam} Tháng sinh: ${canchi.thang} </b> </div>
+                            <div><b> Ngày sinh: ${canchi.ngay} Giờ sinh: ${canchi.gio}</b> </div>
+                            <div><b> Số tuổi âm:</b> ${tuoiAm} Tuổi</div>
                             <hr/>
-                            <div><b>Ngày sinh âm lịch:</b> ${am.ngay}/${am.thang}${am.nhuan ? ' (Nhuận)' : ''}/${am.nam}</div>
-                            <div><b>Năm sinh:</b> ${canchi.nam}</div>
-                            <div><b>Tháng sinh:</b> ${canchi.thang}</div>
-                            <div><b>Ngày sinh:</b> ${canchi.ngay}</div>
-                            <div><b>Giờ Sinh:</b> ${canchi.gio}</div>
-                            <hr/>
-                            <div><b>Giới tính:</b> ${gioitinh}</div>
-                            <div><b>Số tuổi âm lịch:</b> ${tuoiAm}</div>
                             <div><b>Âm dương:</b> ${amduong}</div>
                             <div><b>Mệnh:</b> ${menh}</div>
-                            <div><b>Cục:</b> ${cuc}</div>
-                        
+                            <div><b>Cục:</b> ${cuc}</div>                            
                             <div><b> ${Quan_he_cucmenh}</b></div>
                             <div><b> Thân cư ${cungCu}</b></div>
                             <div><b>${am_duong_tinh_chat}</b></div>
+                            <hr/>
                             <div><b>${phamgio_quan_sat}</b></div>
                             <div><b>${phamgio_diem_vuong}</b></div>
                             <div><b>${phamgio_da_de}</b></div>

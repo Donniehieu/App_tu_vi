@@ -25,10 +25,10 @@
     border: 2px solid #0070c0 !important;
 }
 .laso-wrapper {
-    width: 75vh;
-    height: 100vh;
+    width: 90vh;
+    height: 118vh;
     max-width: 90vw;
-    max-height: 90vw;
+    max-height: 115vw;
     aspect-ratio: 3/4;
     display: flex;
     align-items: center;
@@ -46,6 +46,7 @@
     border-radius: 12px;
     box-shadow: 0 2px 12px #0001;
     overflow: hidden;
+    font-size: 0.95em;
     gap: 0;
 }
 
@@ -70,7 +71,7 @@
         display: block;
         background: #fffded;
         font-weight: bold;
-        font-size: 1rem;
+        font-size: 0.95rem;
         border: 1px solid #8d8d8d;
         z-index: 1;
         padding: 12px 4px;
@@ -174,14 +175,15 @@
     left: 0%;
     align-items: flex-start;
     width: max-content;
+    font-size: 0.95em
 }
 .phu-tinh {
     display: flex;
     flex-direction: column; /* Tự động xuống dòng khi có nhiều phụ tinh */
     width: 100%; /* Chiếm toàn bộ chiều rộng của ô */
     position: absolute;
-    font-size: 1em; /* Nếu .ten-cung là 2em thì 2/3 là ~1.33em */
-    gap: 1em;
+    font-size:0.95em; /* Nếu .ten-cung là 2em thì 2/3 là ~1.33em */
+    gap: 0.2em;
     font-family: Arial, sans-serif !important;
     width: max-content;
 }
@@ -191,10 +193,11 @@
     right: 0%;
     align-items: flex-end;
     width: max-content;
+    font-size: 0.95em
 }
 .tu-hoa {
     font-weight: bold;
-    font-size: 1em;
+    font-size: 0.95em;
     display: flex;
     flex-direction: column; /* Tự động dãn xuống nếu nhiều tứ hóa cùng cung */
     gap: 0.2em; /* Khoảng cách giữa các tứ hóa */
@@ -207,8 +210,8 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    top: calc(1.5rem);
-    margin-bottom: 2px;
+    top: calc(1.2em);
+    margin-bottom: 1.5px;
     position: absolute;
     justify-content: center; /* Căn giữa ngang */
     align-items: flex-start;
@@ -224,8 +227,8 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    top: calc(2em + 2.7em);
-    margin-bottom: 2px;
+    top: calc(em);
+    margin-bottom: 1.5px;
     position: static;
     font-weight: normal;
     font-family: Arial, sans-serif !important;
